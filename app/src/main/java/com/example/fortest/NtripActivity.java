@@ -36,8 +36,6 @@ public class NtripActivity extends AppCompatActivity {
     }
 
     public static class NtripConnectTaskObs extends NtripConnectTask{
-
-
         protected void handleReceivedData(InputStream inputStream) throws IOException {
             byte[] buffer = new byte[1024];
             int bytesRead = inputStream.read(buffer);
@@ -51,7 +49,7 @@ public class NtripActivity extends AppCompatActivity {
             for (byte b : receivedBytes) {
                 System.out.print(String.format("%02X ", b));
                 if (1 == SDK.IOInputObsData(b)) {
-                    Log.d(TAG,  SDK.SDKRetrieve("NMEA_GGA",  104));
+                    Log.d(TAG, SDK.SDKRetrieve("NMEA_GGA",  104));
                 }
             }
             System.out.println();
@@ -59,7 +57,6 @@ public class NtripActivity extends AppCompatActivity {
         protected void setConfig(){
             NTRIP_SERVER_IP = "119.96.165.202";
             NTRIP_SERVER_PORT = 8600;
-            isRunning = false;
             MOUNTPOINT = "TEST";
             USERNAME = "test";
             PASSWORD = "test";
@@ -96,7 +93,6 @@ public class NtripActivity extends AppCompatActivity {
         protected void setConfig(){
             NTRIP_SERVER_IP = "103.143.19.54";
             NTRIP_SERVER_PORT = 8060;
-            isRunning = false; // 控制循环的标志
             MOUNTPOINT = "SSRKPL0CLK";
             USERNAME = "test052";
             PASSWORD = "46391";
@@ -104,7 +100,7 @@ public class NtripActivity extends AppCompatActivity {
     }
 }
 abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
-    protected static final String TAG = "NtripActivity";
+    protected String TAG = "NtripActivity";
     protected  boolean isRunning = false; // 控制循环的标志
     protected String NTRIP_SERVER_IP = "103.143.19.54";
     protected int NTRIP_SERVER_PORT = 8060;
@@ -121,6 +117,8 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
 
     protected Void doInBackground(Void... voids) {
         isRunning = true;
+        setConfig();
+        Log.d(TAG, MOUNTPOINT);
         try {
             // 创建Socket连接
             socket = new Socket(NTRIP_SERVER_IP, NTRIP_SERVER_PORT);
@@ -128,7 +126,6 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             InputStream inputStream = socket.getInputStream();
-            setConfig();
             // 发送连接请求，包括挂载点和账号密码
             sendConnectRequest(out, MOUNTPOINT, USERNAME, PASSWORD);
 

@@ -46,6 +46,8 @@ public class TcpActivity extends AppCompatActivity {
         private boolean isRunning = false; // 用于控制循环的标志
         @Override
         protected Void doInBackground(Void... voids) {
+            isRunning = true;
+            setConfig("119.96.169.117", 7001);
             try {
                 Log.i(TAG, "ycj 开始建立socket连接");
                 // 创建Socket连接
@@ -77,20 +79,16 @@ public class TcpActivity extends AppCompatActivity {
             } catch (IOException e) {
                 Log.e(TAG, "Error: " + e.getMessage());
             }
-
             return null;
         }
-
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             isRunning = false; // 结束循环
         }
-
         public void setConfig(String SERVER_IP, int SERVER_PORT){
             this.SERVER_IP = SERVER_IP;
             this.SERVER_PORT = SERVER_PORT;
-            isRunning = true;
         }
     }
 }

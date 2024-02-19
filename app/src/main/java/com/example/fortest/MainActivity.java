@@ -96,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
 
-
-        SDK.SDKSetIntv(1);
+        SDK.SDKSetIntv(2);
         Log.i(TAG, "SDKInit over");
         isInitialized = true;
         Log.i(TAG, "TCP接收数据开始执行");
