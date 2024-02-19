@@ -7,7 +7,8 @@ public class SDK {
     public static native void SDKInit(String mode,String ant, double[] pos,double[] enu,double cut, double intv, String targetPath);
     public static native int IOInputObsData(byte data);
     public static native int IOInputEphData(byte data);
-    public static native void SDKRetrieve(String type, byte[] buff, int len);
+    public static native void  SDKSetIntv(int intv);
+    public static native String SDKRetrieve(String type,  int len);
     public static native int IOInputSsrData(byte data);
     public static native void SDKTerminate();
     public static native void SDKRestart();

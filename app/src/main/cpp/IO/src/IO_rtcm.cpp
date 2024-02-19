@@ -1,5 +1,6 @@
 #include "include/IO_rtcm.h"
 #include "include/rtklib_fun.h"
+#include "include/rtklib.h"
 #include "include/Interface.h"
 #include <android/log.h>
 #define LOG_TAG "YourAppTag"
@@ -48,7 +49,7 @@ namespace KPL_IO
 
     int IO_inputObsData(uint8_t data)
     {
-        int ret = 0,b_process = 0;
+        int ret = 0, b_process = 0;
         if (0 == (ret = input_rtcm3(&s_rtcm_obs, data)))
             return 0;
         switch (ret)
@@ -56,7 +57,6 @@ namespace KPL_IO
         case 1:
             /* observations */
             //打印数据和解算时间
-            KPL_setIntv(2);
             char buff[1024];
             time2str(s_rtcm_obs.time,buff,2);
             b_process = KPL_inputObs(s_rtcm_obs.time, &s_rtcm_obs.obs);
@@ -121,5 +121,8 @@ namespace KPL_IO
     void SDK_setpath(const char *path)
     {
         KPL_setParentDirectory(path);
+    }
+    void SDK_ecef2enu(const double *pos, const double *r, double *e){
+        ecef2enu( pos, r, e);
     }
 }

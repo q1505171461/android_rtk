@@ -41,12 +41,11 @@ public class TcpActivity extends AppCompatActivity {
     }
 
     public static class TcpClientTask extends AsyncTask<Void, Void, Void> {
-        private static final String SERVER_IP = "119.96.165.202";
-        private static final int SERVER_PORT = 8605;
+        private String SERVER_IP = "119.96.169.117";
+        private int SERVER_PORT = 7001;
         private boolean isRunning = false; // 用于控制循环的标志
         @Override
         protected Void doInBackground(Void... voids) {
-            isRunning = true;
             try {
                 Log.i(TAG, "ycj 开始建立socket连接");
                 // 创建Socket连接
@@ -86,6 +85,12 @@ public class TcpActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             isRunning = false; // 结束循环
+        }
+
+        public void setConfig(String SERVER_IP, int SERVER_PORT){
+            this.SERVER_IP = SERVER_IP;
+            this.SERVER_PORT = SERVER_PORT;
+            isRunning = true;
         }
     }
 }

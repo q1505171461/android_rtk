@@ -35,47 +35,13 @@ public class NtripActivity extends AppCompatActivity {
         });
     }
 
-    public static class NtripConnectTaskObs extends AsyncTask<Void, Void, Void> {
-        private static final String NTRIP_SERVER_IP = "119.96.165.202";
-        private static final int NTRIP_SERVER_PORT = 8600;
-        private Socket socket;
-        private  boolean isRunning = false; // 控制循环的标志
-        private static final String MOUNTPOINT = "TEST";
-        private static final String USERNAME = "test";
-        private static final String PASSWORD = "test";
+    public static class NtripConnectTaskObs extends NtripConnectTask{
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            isRunning = true;
-            try {
-                // 创建Socket连接
-                socket = new Socket(NTRIP_SERVER_IP, NTRIP_SERVER_PORT);
-                // 获取输入输出流
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                InputStream inputStream = socket.getInputStream();
 
-                // 发送连接请求，包括挂载点和账号密码
-                sendConnectRequest(out, MOUNTPOINT, USERNAME, PASSWORD);
-
-                // 循环读取服务器发送的数据
-                String response = in.readLine();
-                Log.d(TAG, "Received Obs data from Ntrip server: " + response);
-                while (isRunning) {
-                    handleReceivedData(inputStream);
-                }
-                socket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error: " + e.getMessage());
-            }
-            return null;
-        }
-
-        private void handleReceivedData(InputStream inputStream) throws IOException {
+        protected void handleReceivedData(InputStream inputStream) throws IOException {
             byte[] buffer = new byte[1024];
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == -1) {
-                // 服务器关闭连接或发生其他错误
                 return;
             }
             // 处理从服务器获取的数据，例如更新UI或执行其他操作
@@ -84,79 +50,27 @@ public class NtripActivity extends AppCompatActivity {
             System.out.print("收到Obs数据:");
             for (byte b : receivedBytes) {
                 System.out.print(String.format("%02X ", b));
-
-                byte[] buff_r = new byte[1024];
                 if (1 == SDK.IOInputObsData(b)) {
-                    SDK.SDKRetrieve("NMEA_GGA", buff_r, 104);
-                    Log.d(TAG,  new String(buff_r, 0, 104, StandardCharsets.UTF_8));
+                    Log.d(TAG,  SDK.SDKRetrieve("NMEA_GGA",  104));
                 }
             }
             System.out.println();
         }
-
-        private void sendConnectRequest(PrintWriter out, String mountpoint, String username, String password) {
-            StringBuilder requestBuilder = new StringBuilder();
-            requestBuilder.append("GET /").append(mountpoint).append(" HTTP/1.0\r\n");
-            requestBuilder.append("User-Agent: NTRIP NTRIPClient/1.0\r\n");
-            // 添加账号密码信息
-            if (!username.isEmpty()) {
-                String authHeader = "Authorization: Basic " + Base64.encodeToString((username + ":" + password).getBytes(), Base64.NO_WRAP);
-                requestBuilder.append(authHeader).append("\r\n");
-            }
-            requestBuilder.append("\r\n");
-
-            // 发送请求
-            out.println(requestBuilder.toString());
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            isRunning = false; // 结束循环
+        protected void setConfig(){
+            NTRIP_SERVER_IP = "119.96.165.202";
+            NTRIP_SERVER_PORT = 8600;
+            isRunning = false;
+            MOUNTPOINT = "TEST";
+            USERNAME = "test";
+            PASSWORD = "test";
         }
     }
-    public static class NtripConnectTaskSsr extends AsyncTask<Void, Void, Void> {
+    public static class NtripConnectTaskSsr extends NtripConnectTask {
         //域名: ssr.kplgnss.com (推荐使用), IP: 103.143.19.54
         //端口: 8060
         //源节点: SSRKPL0CLK
-        private static final String NTRIP_SERVER_IP = "103.143.19.54";
-        private static final int NTRIP_SERVER_PORT = 8060;
-        private Socket socket;
-        private  boolean isRunning = false; // 控制循环的标志
-        // "test:test@119.96.223.176:8007/SSR_COM_BAK"
-        private static final String MOUNTPOINT = "SSRKPL0CLK";
-        private static final String USERNAME = "test052";
-        private static final String PASSWORD = "46391";
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            isRunning = true;
-            try {
-                // 创建Socket连接
-                socket = new Socket(NTRIP_SERVER_IP, NTRIP_SERVER_PORT);
-                // 获取输入输出流
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                InputStream inputStream = socket.getInputStream();
-
-                // 发送连接请求，包括挂载点和账号密码
-                sendConnectRequest(out, MOUNTPOINT, USERNAME, PASSWORD);
-
-                // 循环读取服务器发送的数据
-                String response = in.readLine();
-                Log.d(TAG, "Received Obs data from Ntrip serverSSR: " + response);
-                while (isRunning) {
-                    handleReceivedData(inputStream);
-                }
-                // 关闭连接
-                socket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error: " + e.getMessage());
-            }
-            return null;
-        }
-
-        private void handleReceivedData(InputStream inputStream) throws IOException {
+        protected void handleReceivedData(InputStream inputStream) throws IOException {
             byte[] buffer = new byte[1024];
             int bytesRead = inputStream.read(buffer);
             if (bytesRead == -1) {
@@ -173,30 +87,76 @@ public class NtripActivity extends AppCompatActivity {
                 SDK.IOInputSsrData(b);
             }
             System.out.println();
-            byte[] buff_r = new byte[1024000];
-            SDK.SDKRetrieve("SSR-ALL", buff_r , 0);
-            Log.d(TAG,  new String(buff_r,  StandardCharsets.UTF_8));
-        }
-        private void sendConnectRequest(PrintWriter out, String mountpoint, String username, String password) {
-            StringBuilder requestBuilder = new StringBuilder();
-            requestBuilder.append("GET /").append(mountpoint).append(" HTTP/1.0\r\n");
-            requestBuilder.append("User-Agent: NTRIP NTRIPClient/1.0\r\n");
-
-            // 添加账号密码信息
-            if (!username.isEmpty()) {
-                String authHeader = "Authorization: Basic " + Base64.encodeToString((username + ":" + password).getBytes(), Base64.NO_WRAP);
-                requestBuilder.append(authHeader).append("\r\n");
+            String logstr = SDK.SDKRetrieve("SSR-ALL",  0);
+            for (String line : logstr.split("\n")){
+                Log.i("ssrlog", line);
             }
-
-            requestBuilder.append("\r\n");
-
-            // 发送请求
-            out.println(requestBuilder.toString());
         }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            isRunning = false; // 结束循环
+
+        protected void setConfig(){
+            NTRIP_SERVER_IP = "103.143.19.54";
+            NTRIP_SERVER_PORT = 8060;
+            isRunning = false; // 控制循环的标志
+            MOUNTPOINT = "SSRKPL0CLK";
+            USERNAME = "test052";
+            PASSWORD = "46391";
         }
     }
+}
+abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
+    protected static final String TAG = "NtripActivity";
+    protected  boolean isRunning = false; // 控制循环的标志
+    protected String NTRIP_SERVER_IP = "103.143.19.54";
+    protected int NTRIP_SERVER_PORT = 8060;
+    protected Socket socket;
+    protected String MOUNTPOINT = "SSRKPL0CLK";
+    protected String USERNAME = "test052";
+    protected String PASSWORD = "46391";
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        isRunning = false; // 结束循环
+    }
+
+    protected Void doInBackground(Void... voids) {
+        isRunning = true;
+        try {
+            // 创建Socket连接
+            socket = new Socket(NTRIP_SERVER_IP, NTRIP_SERVER_PORT);
+            // 获取输入输出流
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            InputStream inputStream = socket.getInputStream();
+            setConfig();
+            // 发送连接请求，包括挂载点和账号密码
+            sendConnectRequest(out, MOUNTPOINT, USERNAME, PASSWORD);
+
+            // 循环读取服务器发送的数据
+            String response = in.readLine();
+            Log.d(TAG, "Received Obs data from Ntrip server: " + response);
+            while (isRunning) {
+                handleReceivedData(inputStream);
+            }
+            socket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Error: " + e.getMessage());
+        }
+        return null;
+    }
+    protected void sendConnectRequest(PrintWriter out, String mountpoint, String username, String password) {
+        StringBuilder requestBuilder = new StringBuilder();
+        requestBuilder.append("GET /").append(mountpoint).append(" HTTP/1.0\r\n");
+        requestBuilder.append("User-Agent: NTRIP NTRIPClient/1.0\r\n");
+        // 添加账号密码信息
+        if (!username.isEmpty()) {
+            String authHeader = "Authorization: Basic " + Base64.encodeToString((username + ":" + password).getBytes(), Base64.NO_WRAP);
+            requestBuilder.append(authHeader).append("\r\n");
+        }
+        requestBuilder.append("\r\n");
+        out.println(requestBuilder);
+    }
+    protected abstract void handleReceivedData(InputStream inputStream) throws IOException;
+
+    protected abstract void setConfig();
 }

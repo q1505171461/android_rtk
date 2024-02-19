@@ -19,14 +19,12 @@ Java_com_example_fortest_SDK_SDKInit(JNIEnv *env, jclass clazz, jstring jmode, j
     jdouble *enu = env->GetDoubleArrayElements(jenu, nullptr);
     const char *path = env->GetStringUTFChars(jtarget_path, nullptr);
     SDK_init(mode, ant, pos, enu, jcut, jintv, path);
-//    SDK_setIntv(1);
     env->ReleaseStringUTFChars(jmode,mode);
     env->ReleaseStringUTFChars(jant,ant);
     env->ReleaseDoubleArrayElements(jpos,pos,0);
     env->ReleaseDoubleArrayElements(jenu,enu,0);
     env->ReleaseStringUTFChars(jtarget_path,path);
 }
-
 
 extern "C"
 JNIEXPORT jint
@@ -63,15 +61,25 @@ return IO_inputSsrData(data);
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_fortest_SDK_SDKRetrieve(JNIEnv *env, jclass clazz, jstring jtype, jbyteArray jbuff,
-                                         jint len) {
+Java_com_example_fortest_SDK_SDKSetIntv(JNIEnv *env, jclass clazz, jint intv) {
+    SDK_setIntv(intv);
+    double ref_pos[3] = {1227856.3104, -4698500.7901, 4079976.9345};
+    double point_pos[3] = {1227856.3204, -4698499.7901, 4079977.9345};
+    double enu[3];
+    SDK_ecef2enu(ref_pos,point_pos,enu);
+    LOGD("1111 %f %f %f",enu[0],enu[1],enu[2]);
+}
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_example_fortest_SDK_SDKRetrieve(JNIEnv *env, jclass clazz, jstring jtype, jint len) {
     // TODO: implement SDKRetrieve()
-    const char *type = env->GetStringUTFChars(jtype, nullptr);
-    jsize lens = env->GetArrayLength(jbuff);
-    jbyte* buff = env->GetByteArrayElements(jbuff, nullptr);
-    SDK_retrieve(type, reinterpret_cast<char *>(buff),len);
-    env->ReleaseStringUTFChars(jtype, type);
-    env->ReleaseByteArrayElements(jbuff, buff, 0);
+    const char * type = (env)->GetStringUTFChars(jtype, nullptr);
+    char buff[1024000];
+
+    SDK_retrieve(type, buff, len);
+    env->ReleaseStringUTFChars(jtype,type);
+//    LOGD("12345%s", (*env).NewStringUTF( buff));
+    return (*env).NewStringUTF( buff);
 }
 
 extern "C"

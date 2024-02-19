@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -61,22 +62,10 @@ public class MainActivity extends AppCompatActivity {
     private void copyAssets() {
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "开始拷贝文件");
+        Log.i(TAG, Config.INSTANCE.getNtrip_ssr_ip());
         FileUtils.copyAssetsToStorage(this, "configures", path);
         Log.i(TAG, "结束拷贝文件");
-
-        String mode = "kinematic";
-        double[] pos = {-2258208.214700, 5020578.919700, 3210256.397500};
-        double[] enu  = new double[3];
-        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
-
-        Log.i(TAG, "SDKInit over");
-        isInitialized = true;
-        Log.i(TAG, "TCP接收数据开始执行");
-        new TcpActivity.TcpClientTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        Log.i(TAG, "Ssr接收数据开始执行");
-        new NtripActivity.NtripConnectTaskSsr().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        Log.i(TAG, "Obs接收数据开始执行");
-        new NtripActivity.NtripConnectTaskObs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        begin();
     }
 
     @Override
@@ -89,5 +78,33 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Write external storage permission denied");
             }
         }
+    }
+
+    public void begin() {
+//        SharedPreferences sharedPreferences = getSharedPreferences("user",MODE_PRIVATE);
+//
+//        String ntrip_ssr_ip   =sharedPreferences.getString("ntrip_ssr_ip","");
+//        String ntrip_ssr_port =sharedPreferences.getString("ntrip_ssr_port","");
+//        String ntrip_obs_ip   =sharedPreferences.getString("ntrip_obs_ip","");
+//        String ntrip_obs_port =sharedPreferences.getString("ntrip_obs_port","");
+//        int intv = sharedPreferences.getInt("intv",1);
+
+        String mode = "kinematic";
+        double[] pos = {-2258208.214700, 5020578.919700, 3210256.397500};
+        double[] enu  = new double[3];
+
+        String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
+        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+
+
+        SDK.SDKSetIntv(1);
+        Log.i(TAG, "SDKInit over");
+        isInitialized = true;
+        Log.i(TAG, "TCP接收数据开始执行");
+        new TcpActivity.TcpClientTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        Log.i(TAG, "Ssr接收数据开始执行");
+        new NtripActivity.NtripConnectTaskSsr().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        Log.i(TAG, "Obs接收数据开始执行");
+        new NtripActivity.NtripConnectTaskObs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }
