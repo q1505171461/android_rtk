@@ -1,33 +1,297 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".OnlyForTest">
 
-    <Button
-        android:id="@+id/bt1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TCP"
-        android:layout_marginBottom="16dp"/>
+    <RelativeLayout android:id="@+id/ll_module_power"
+        style="@style/rl_container">
 
-    <Button
-        android:id="@+id/bt2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ntrip1"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:id="@+id/tv_module_tittle"
+            style="@style/tv_tittle_secondary"
+            android:text="Starting to solve." />
 
-    <Button
-        android:id="@+id/bt3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ntrip2"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:id="@+id/tv_module_content"
+            style="@style/tv_content"
+            android:text="@string/str_rcv_enable_title" />
+
+        <Switch
+            android:id="@+id/solve_switch"
+            style="@style/switch_centervertical"
+            android:checked="false"
+            android:layout_marginEnd="5dp" />
+    </RelativeLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_1"/>
+
+    <LinearLayout
+        android:id="@+id/login_body_layout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/login_body_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/scrollable1_textview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="16sp" />
+
+        </ScrollView>
+    </LinearLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_2" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnSSRSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="SSR SETTINGS"></Button>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:background="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/btnEPHSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="EPH SETTINGS"></Button>
+    </RelativeLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_3" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height">
+
+        <TextView
+            android:id="@+id/obs_textview"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@color/grey_color"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:text="OBS" />
+
+        <Button
+            android:id="@+id/btnOBSSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="SETTINGS"
+            android:textColor="@android:color/white" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height"
+        android:orientation="horizontal"
+        android:id="@+id/serial_mode_layout"
+        android:gravity="start"
+        android:visibility="visible"
+        android:background="@color/grey_color">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_height="40dp">
+            <RadioGroup
+                android:layout_width="0dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:id="@+id/radiogroup_comm"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:id="@+id/radio_serial"
+                    android:textColor="#111"
+                    android:textSize="12sp"
+                    android:text="@string/str_com_mode_title"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="12sp"
+                    android:id="@+id/radio_bt"
+                    android:textColor="#111"
+                    android:text="@string/str_bt_mode_title"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:id="@+id/radio_ntrip"
+                    android:textColor="#111"
+                    android:textSize="12sp"
+                    android:text="@string/str_ntrip_mode_title"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_4" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height">
+
+        <TextView
+            android:id="@+id/number_correction"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@color/grey_color"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:text="改正数" />
+
+        <Button
+            android:id="@+id/btnCORRECTSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:text="SETTINGS"
+            android:textColor="@android:color/white" />
+    </RelativeLayout>
 
 
+
+    <LinearLayout
+        android:id="@+id/correct_login_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height"
+        android:orientation="horizontal"
+        android:gravity="start"
+        android:visibility="visible"
+        android:background="@color/grey_color">
+        <LinearLayout
+            android:id="@+id/correct_login1_layout"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_height="40dp">
+            <RadioGroup
+                android:id="@+id/correct_tcp_ntrip"
+                android:layout_width="0dp"
+                android:orientation="horizontal"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:id="@+id/correct_tcp"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="12sp"
+                    android:textColor="#111"
+                    android:text="@string/str_correct_TCP_mode_title"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/correct_ntrip"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:textColor="#111"
+                    android:textSize="12sp"
+                    android:text="@string/str_ntrip_mode_title"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="采样率设置："
+            android:layout_gravity="center_vertical"/>
+
+        <EditText
+            android:id="@+id/editTextSamplingRate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="请输入采样率"
+            android:inputType="numberDecimal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="秒"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_5" />
+
+    <LinearLayout
+        android:id="@+id/ll_msg_header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tcp_row_height"
+        android:background="@color/grey_color"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/id_show_logs"
+            style="@style/checkbox_style"
+            android:text="@string/str_show_logs_title"
+            />
+
+        <CheckBox
+            android:id="@+id/id_gga_enable"
+            style="@style/checkbox_style"
+            android:text="@string/str_only_ggafilter_title"
+            />
+
+        <CheckBox
+            android:id="@+id/id_log_output"
+            style="@style/checkbox_style"
+            android:text="@string/str_logs_output_title"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/scrollable_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp" />
+
+        </ScrollView>
+    </LinearLayout>
+
+    <View style="@style/divider_normal" android:id="@+id/divider_6" />
 </LinearLayout>
