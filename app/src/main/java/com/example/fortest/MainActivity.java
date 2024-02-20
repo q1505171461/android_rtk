@@ -41,16 +41,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             copyAssets();
         }
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button tcpButton = findViewById(R.id.bt1);
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button ntrip1Button = findViewById(R.id.bt2);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button ntrip2Button = findViewById(R.id.bt3);
-        tcpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, TcpActivity.class);
-                startActivity(intent);
-            }
-        });
+
         ntrip1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,13 +73,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void begin() {
-//        SharedPreferences sharedPreferences = getSharedPreferences("user",MODE_PRIVATE);
-//
-//        String ntrip_ssr_ip   =sharedPreferences.getString("ntrip_ssr_ip","");
-//        String ntrip_ssr_port =sharedPreferences.getString("ntrip_ssr_port","");
-//        String ntrip_obs_ip   =sharedPreferences.getString("ntrip_obs_ip","");
-//        String ntrip_obs_port =sharedPreferences.getString("ntrip_obs_port","");
-//        int intv = sharedPreferences.getInt("intv",1);
+        SharedPreferences sharedPreferences = getSharedPreferences("user",MODE_PRIVATE);
+
+        String ntrip_ssr_ip   =sharedPreferences.getString("ntrip_ssr_ip","");
+        String ntrip_ssr_port =sharedPreferences.getString("ntrip_ssr_port","");
+        String ntrip_obs_ip   =sharedPreferences.getString("ntrip_obs_ip","");
+        String ntrip_obs_port =sharedPreferences.getString("ntrip_obs_port","");
+        int intv = sharedPreferences.getInt("intv",1);
 
         String mode = "kinematic";
         double[] pos = {-2258208.214700, 5020578.919700, 3210256.397500};
@@ -100,10 +92,10 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "SDKInit over");
         isInitialized = true;
         Log.i(TAG, "TCP接收数据开始执行");
-        new TcpActivity.TcpClientTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new TcpClientTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Ssr接收数据开始执行");
-        new NtripActivity.NtripConnectTaskSsr().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new NtripConnectTaskSsr().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Obs接收数据开始执行");
-        new NtripActivity.NtripConnectTaskObs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new NtripConnectTaskObs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

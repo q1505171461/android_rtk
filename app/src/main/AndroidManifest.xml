@@ -21,9 +21,7 @@
         <activity
             android:name=".NtripActivity"
             android:exported="false" />
-        <activity
-            android:name=".TcpActivity"
-            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
