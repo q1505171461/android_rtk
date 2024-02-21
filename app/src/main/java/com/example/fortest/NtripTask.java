@@ -1,41 +1,23 @@
 package com.example.fortest;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import android.util.Base64;
-
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Objects;
 
-public class NtripActivity extends AppCompatActivity {
-    private static final String TAG = "NtripActivity";
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ntrip);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button ntripButton = findViewById(R.id.bt22);
-        ntripButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 在 onCreate 方法中执行异步任务
-                Log.i(TAG, "建立ntrip");
-//                new NtripConnectTaskObs().execute();
-            }
-        });
-    }
-}
 class NtripConnectTaskObs extends NtripConnectTask{
+    NtripConnectTaskObs(Map<String, String> config, Handler handler){
+        super(config, handler);
+    }
     protected void handleReceivedData(InputStream inputStream) throws IOException {
         byte[] buffer = new byte[1024];
         int bytesRead = inputStream.read(buffer);
@@ -49,32 +31,68 @@ class NtripConnectTaskObs extends NtripConnectTask{
         for (byte b : receivedBytes) {
             System.out.print(String.format("%02X ", b));
             if (1 == SDK.IOInputObsData(b)) {
-                Log.d(TAG, SDK.SDKRetrieve("NMEA_GGA",  104));
+                sendStatusMsg();
+                String gga = SDK.SDKRetrieve("NMEA_GGA",  104);
+                sendMsg_GGA(gga);
+                Log.d(TAG, gga);
             }
         }
         System.out.println();
     }
-    protected void setConfig(){
-        NTRIP_SERVER_IP = "119.96.165.202";
-        NTRIP_SERVER_PORT = 8600;
-        MOUNTPOINT = "TEST";
-        USERNAME = "test";
-        PASSWORD = "test";
+    void sendMsg_GGA(String gga){
+        Message msg = new Message();
+        msg.what = Config.MSG_GGA;
+        msg.obj = gga;
+        handler.sendMessage(msg);
+    }
+
+    void sendStatusMsg(){
+        Message msg = new Message();
+        msg.what = Config.OBS_LOGIN_SUCCESS;
+        handler.sendMessage(msg);
+    }
+}
+
+class NtripConnectTaskEph extends NtripConnectTask{
+    NtripConnectTaskEph(Map<String, String> config, Handler handler){
+        super(config, handler);
+    }
+    protected void handleReceivedData(InputStream inputStream) throws IOException {
+        byte[] buffer = new byte[10240];
+        int bytesRead = inputStream.read(buffer);
+        if (bytesRead == -1) {
+            return;
+        }
+        // 处理从服务器获取的数据，例如更新UI或执行其他操作
+        byte[] receivedBytes = new byte[bytesRead];
+        System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
+        System.out.print("收到Eph数据:");
+        sendStatusMsg();
+        for (byte b : receivedBytes) {
+            System.out.print(String.format("%02X ", b));
+            SDK.IOInputEphData(b);
+        }
+        System.out.println();
+    }
+
+    void sendStatusMsg(){
+        Message msg = new Message();
+        msg.what = Config.EPH_LOGIN_SUCCESS;
+        handler.sendMessage(msg);
     }
 }
 class NtripConnectTaskSsr extends NtripConnectTask {
-    //域名: ssr.kplgnss.com (推荐使用), IP: 103.143.19.54
-    //端口: 8060
-    //源节点: SSRKPL0CLK
-
+    NtripConnectTaskSsr(Map<String, String> config, Handler handler){
+        super(config, handler);
+    }
     protected void handleReceivedData(InputStream inputStream) throws IOException {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[10240];
         int bytesRead = inputStream.read(buffer);
         if (bytesRead == -1) {
             // 服务器关闭连接或发生其他错误
             return;
         }
-
+        sendStatusMsg();
         // 处理从服务器获取的数据，例如更新UI或执行其他操作
         byte[] receivedBytes = new byte[bytesRead];
         System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
@@ -90,33 +108,40 @@ class NtripConnectTaskSsr extends NtripConnectTask {
         }
     }
 
-    protected void setConfig(){
-        NTRIP_SERVER_IP = "103.143.19.54";
-        NTRIP_SERVER_PORT = 8060;
-        MOUNTPOINT = "SSRKPL0CLK";
-        USERNAME = "test052";
-        PASSWORD = "46391";
+    void sendStatusMsg(){
+        Message msg = new Message();
+        msg.what = Config.SSR_LOGIN_SUCCESS;
+        handler.sendMessage(msg);
     }
+
 }
 abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
-    protected String TAG = "NtripActivity";
-    protected  boolean isRunning = false; // 控制循环的标志
+    protected String TAG = "NtripTask";
+    protected  boolean enableRunning = false; // 控制循环的标志
     protected String NTRIP_SERVER_IP = "103.143.19.54";
     protected int NTRIP_SERVER_PORT = 8060;
     protected Socket socket;
     protected String MOUNTPOINT = "SSRKPL0CLK";
     protected String USERNAME = "test052";
     protected String PASSWORD = "46391";
+    private Map<String, String> config;
 
+    protected Handler handler;
+
+    NtripConnectTask(Map<String, String> config, Handler handler){
+        this.config = config;
+        this.handler= handler;
+    }
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        isRunning = false; // 结束循环
+        enableRunning = false; // 结束循环
     }
 
     protected Void doInBackground(Void... voids) {
-        isRunning = true;
-        setConfig();
+        if (!setConfig()){
+            return null;
+        }
         Log.d(TAG, MOUNTPOINT);
         try {
             // 创建Socket连接
@@ -131,7 +156,7 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
             // 循环读取服务器发送的数据
             String response = in.readLine();
             Log.d(TAG, "Received Obs data from Ntrip server: " + response);
-            while (isRunning) {
+            while (enableRunning) {
                 handleReceivedData(inputStream);
             }
             socket.close();
@@ -153,19 +178,44 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
         out.println(requestBuilder);
     }
     protected abstract void handleReceivedData(InputStream inputStream) throws IOException;
+    public void exit(){
+        enableRunning = false;
+    }
 
-    protected abstract void setConfig();
+    protected boolean setConfig(){
+        if (null == config){
+            return false;
+        }
+        String[] configs = Config.INSTANCE.getConnectConfig();
+        if ( ! Objects.requireNonNull(config.get(configs[0])).matches("(\\d+\\.){3,3}\\d+")
+                || ! Objects.requireNonNull(config.get(configs[1])).matches("\\d+")
+                || ! Objects.requireNonNull(config.get(configs[1])).matches("\\d+")){
+            return false;
+        }
+        NTRIP_SERVER_IP = config.get(configs[0]);
+        NTRIP_SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configs[1]))) ;
+        MOUNTPOINT = config.get(configs[2]);
+        USERNAME = config.get(configs[3]);
+        PASSWORD = config.get(configs[4]);
+        enableRunning = true;
+        return true;
+    }
 }
 
 class TcpClientTask extends AsyncTask<Void, Void, Void> {
     protected String TAG = "TCPConnect";
     private String SERVER_IP = "119.96.169.117";
     private int SERVER_PORT = 7001;
-    private boolean isRunning = false; // 用于控制循环的标志
+    private boolean enableRunning = false; // 用于控制循环的标志
+    private  Map<String, String> config;
+    TcpClientTask(Map<String, String> config){
+       this.config = config;
+    }
     @Override
     protected Void doInBackground(Void... voids) {
-        isRunning = true;
-        setConfig("119.96.169.117", 7001);
+        if (!setConfig()){
+            return null;
+        }
         try {
             Log.i(TAG, "ycj 开始建立socket连接");
             // 创建Socket连接
@@ -177,7 +227,7 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
             out.println("Hello Server");
             byte[] buffer = new byte[1024];
             // 循环读取服务器发送的数据
-            while (isRunning) {
+            while (enableRunning) {
                 Log.i(TAG, "tcp Eph is running");
                 int byteRead = inputStream.read(buffer);
                 if (byteRead == -1) {
@@ -202,10 +252,16 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        isRunning = false; // 结束循环
+        enableRunning = false;
     }
-    public void setConfig(String SERVER_IP, int SERVER_PORT){
-        this.SERVER_IP = SERVER_IP;
-        this.SERVER_PORT = SERVER_PORT;
+    public boolean setConfig(){
+        if (null == config){
+            return false;
+        }
+        String[] configStr  =  Config.INSTANCE.getConnectConfig();
+        this.SERVER_IP = config.get(configStr[0]);
+        this.SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configStr[1])));
+        enableRunning = true;
+        return true;
     }
 }

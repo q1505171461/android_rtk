@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ForTest</string>
+    <string name="app_name">RTKdemo</string>
 
     <string name="title_connecting">Connecting&#8230;</string>
     <string name="title_connected_to">"Connected: "</string>
@@ -20,7 +20,7 @@
     <string name="str_lbl_pwr_saving_caption">Power saving</string>
     <string name="str_lbl_ntrip_auto_caption">NTRIP auto</string>
     <string name="str_logs_output_title">Logs Output</string>
-    <string name="str_show_logs_title">show logs</string>
+    <string name="str_show_logs_title">show SSR</string>
     <string name="str_working_mode_title">Running Mode</string>
     <string name="str_base_rover_mode_title">Base/Rover</string>
     <string name="str_base_mode_title">Base</string>
@@ -492,4 +492,10 @@
     <string name="bt_not_enabled_leaving">exit while BT is disable</string>
     <string name="str_ntrip_mode_title">NTRIP</string>
     <string name="str_correct_TCP_mode_title">TCP</string>
+    <string name="ssr_settings">SET SSR</string>
+    <string name="eph_settings">SET EPH</string>
+    <string name="obs">OBS</string>
+    <string name="settings">SET</string>
+    <string name="eph">EPH</string>
+    <string name="ssr">SSR</string>
 </resources>

@@ -23,7 +23,8 @@
             android:id="@+id/solve_switch"
             style="@style/switch_centervertical"
             android:checked="false"
-            android:layout_marginEnd="5dp" />
+            android:layout_marginEnd="5dp"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
     </RelativeLayout>
 
     <View style="@style/divider_normal" android:id="@+id/divider_1"/>
@@ -35,199 +36,157 @@
         android:orientation="vertical">
 
         <ScrollView
-            android:id="@+id/login_body_scrollview"
+            android:id="@+id/scrollview_status"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/scrollable1_textview"
+                android:id="@+id/scrollable_textview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:maxLength="4000"
                 android:textSize="16sp" />
 
         </ScrollView>
     </LinearLayout>
 
-    <View style="@style/divider_normal" android:id="@+id/divider_2" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/cell_row_height"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btnSSRSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="SSR SETTINGS"></Button>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:background="@android:color/darker_gray" />
-
-        <Button
-            android:id="@+id/btnEPHSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:text="EPH SETTINGS"></Button>
-    </RelativeLayout>
-
-    <View style="@style/divider_normal" android:id="@+id/divider_3" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/cell_row_height">
-
-        <TextView
-            android:id="@+id/obs_textview"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:background="@color/grey_color"
-            android:textSize="20sp"
-            android:layout_centerVertical="true"
-            android:text="OBS" />
-
-        <Button
-            android:id="@+id/btnOBSSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:text="SETTINGS"
-            android:textColor="@android:color/white" />
-    </RelativeLayout>
+    <View style="@style/divider_normal" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/cell_row_height"
-        android:orientation="horizontal"
-        android:id="@+id/serial_mode_layout"
-        android:gravity="start"
-        android:visibility="visible"
-        android:background="@color/grey_color">
+        android:background="@color/grey_color"
+        android:orientation="horizontal">
+
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_height="40dp">
-            <RadioGroup
-                android:layout_width="0dp"
-                android:orientation="horizontal"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:id="@+id/radiogroup_comm"
-                android:layout_height="wrap_content">
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:id="@+id/radio_serial"
-                    android:textColor="#111"
-                    android:textSize="12sp"
-                    android:text="@string/str_com_mode_title"
-                    android:layout_height="wrap_content"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="12sp"
-                    android:id="@+id/radio_bt"
-                    android:textColor="#111"
-                    android:text="@string/str_bt_mode_title"
-                    android:layout_height="wrap_content"/>
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:id="@+id/radio_ntrip"
-                    android:textColor="#111"
-                    android:textSize="12sp"
-                    android:text="@string/str_ntrip_mode_title"
-                    android:layout_height="wrap_content"/>
-            </RadioGroup>
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="0.25"
+            android:layout_height="match_parent">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="@string/ssr"
+            tools:ignore="NestedWeights" />
+        <Button
+            android:id="@+id/btnSSRSettings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="@string/settings" />
         </LinearLayout>
+
+        <LinearLayout
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="0.25"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="3"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/eph" />
+        <Button
+            android:id="@+id/btnEPHSettings"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:text="@string/settings" />
+        </LinearLayout>
+
     </LinearLayout>
+
+    <View style="@style/divider_normal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cell_row_height"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:background="@color/grey_color"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="@string/obs" />
+            <LinearLayout
+                android:background="@color/grey_color"
+                android:layout_width="0dp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="10"
+                android:layout_height="40dp">
+                <RadioGroup
+                    android:layout_width="0dp"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:id="@+id/radiogroup_comm"
+                    android:layout_height="wrap_content">
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:id="@+id/radio_serial"
+                        android:textColor="#111"
+                        android:textSize="12sp"
+                        android:text="@string/str_com_mode_title"
+                        android:layout_height="wrap_content"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="12sp"
+                        android:id="@+id/radio_bt"
+                        android:textColor="#111"
+                        android:text="@string/str_bt_mode_title"
+                        android:layout_height="wrap_content"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:id="@+id/radio_ntrip"
+                        android:textColor="#111"
+                        android:textSize="12sp"
+                        android:text="@string/str_ntrip_mode_title"
+                        android:layout_height="wrap_content"/>
+                </RadioGroup>
+            </LinearLayout>
+        <Button
+            android:id="@+id/btnOBSSettings"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:text="@string/settings"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    
 
     <View style="@style/divider_normal" android:id="@+id/divider_4" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/cell_row_height">
-
-        <TextView
-            android:id="@+id/number_correction"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:background="@color/grey_color"
-            android:textSize="20sp"
-            android:layout_centerVertical="true"
-            android:text="改正数" />
-
-        <Button
-            android:id="@+id/btnCORRECTSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:text="SETTINGS"
-            android:textColor="@android:color/white" />
-    </RelativeLayout>
-
-
-
-    <LinearLayout
-        android:id="@+id/correct_login_layout"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/cell_row_height"
-        android:orientation="horizontal"
-        android:gravity="start"
-        android:visibility="visible"
-        android:background="@color/grey_color">
-        <LinearLayout
-            android:id="@+id/correct_login1_layout"
-            android:layout_width="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_height="40dp">
-            <RadioGroup
-                android:id="@+id/correct_tcp_ntrip"
-                android:layout_width="0dp"
-                android:orientation="horizontal"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:layout_height="wrap_content">
-                <RadioButton
-                    android:id="@+id/correct_tcp"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="12sp"
-                    android:textColor="#111"
-                    android:text="@string/str_correct_TCP_mode_title"
-                    android:layout_height="wrap_content"/>
-                <RadioButton
-                    android:id="@+id/correct_ntrip"
-                    android:layout_width="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:textColor="#111"
-                    android:textSize="12sp"
-                    android:text="@string/str_ntrip_mode_title"
-                    android:layout_height="wrap_content"/>
-            </RadioGroup>
-        </LinearLayout>
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:layout_height="40dp"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
             android:text="采样率设置："
             android:layout_gravity="center_vertical"/>
 
@@ -242,21 +201,30 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingEnd="5dp"
             android:text="秒"
             android:layout_gravity="center_vertical"/>
+        <Button
+            android:id="@+id/btnIntvSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/settings"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <View style="@style/divider_normal" android:id="@+id/divider_5" />
+    <View style="@style/divider_normal" />
 
     <LinearLayout
         android:id="@+id/ll_msg_header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/tcp_row_height"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
         android:background="@color/grey_color"
         android:orientation="horizontal">
 
         <CheckBox
-            android:id="@+id/id_show_logs"
+            android:id="@+id/checkbox_ssr"
             style="@style/checkbox_style"
             android:text="@string/str_show_logs_title"
             />
@@ -277,21 +245,22 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <ScrollView
+            android:id="@+id/scrollView_GGA"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/scrollable_textview"
+                android:id="@+id/scrollable_GGA_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp" />
-
         </ScrollView>
     </LinearLayout>
 
-    <View style="@style/divider_normal" android:id="@+id/divider_6" />
+    <View style="@style/divider_normal" />
 </LinearLayout>
