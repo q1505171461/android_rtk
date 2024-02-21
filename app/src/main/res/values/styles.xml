@@ -1,0 +1,95 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@android:color/black</item>
+    </style>
+
+
+    <style name="divider_normal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/divider_gray</item>
+    </style>
+
+    <style name="divider_v">
+        <item name="android:layout_width">0.5dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/divider_gray</item>
+    </style>
+
+    <style name="rl_container">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">58dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:clickable">false</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="tv_tittle_secondary">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="tv_content">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_content</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:paddingBottom">3dp</item>
+    </style>
+    <!--         <item name="android:textStyle">italic</item> -->
+
+    <style name="switch_centervertical">
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:checked">true</item>
+    </style>
+
+    <style name="caption_lable_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@color/grey_color</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_content</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="lable_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_weight">2</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#222</item>
+        <item name="android:textAlignment">viewEnd</item>
+    </style>
+    <style name="edit_style">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    <item name="android:textSize">12sp</item>
+    <item name="android:textColor">#222</item>
+    </style>
+
+    <style name="checkbox_style">
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+<!--        <item name="android:onClick">onCheckboxClicked</item>-->
+    </style>
+
+
+</resources>
