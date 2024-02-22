@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("connecting to the channel ..."));
                 testupdateChart();
 //                updateChartData(0,0,0);
-                start2();
+                start();
             }else {
                 end();
             }
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     });
 
-    public void start2() {
+    public void start() {
         SharedPreferences SSRsharedPreferences = getSharedPreferences(SSR_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences EPHsharedPreferences = getSharedPreferences(EPH_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences OBSsharedPreferences = getSharedPreferences(OBS_PREFERENCES_NAME, MODE_PRIVATE);
