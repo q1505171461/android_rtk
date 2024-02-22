@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("connecting to the channel ..."));
                 testupdateChart();
 //                updateChartData(0,0,0);
-                begin();
+                start();
             }else {
                 end();
             }
@@ -248,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     });
 
-    public void begin() {
+    public void start() {
         SharedPreferences SSRsharedPreferences = getSharedPreferences(SSR_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences EPHsharedPreferences = getSharedPreferences(EPH_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences OBSsharedPreferences = getSharedPreferences(OBS_PREFERENCES_NAME, MODE_PRIVATE);
