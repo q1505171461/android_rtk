@@ -45,22 +45,22 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    protected Button ssrBtnSettings, ephBtnSettings, obsBtnSettings;
     private EditText ntripServerEditText, ntripPortEditText, ntripMountEditText, ntripUserEditText, ntripPasswordEditText;
     private TextView scrolstautsTextView,scrolGGATextView;
     private static final String SSR_PREFERENCES_NAME = "ssrNtripSettingsPrefs";
     private static final String EPH_PREFERENCES_NAME = "ephNtripSettingsPrefs";
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
     NtripConnectTask taskSSR,taskOBS,taskEPH;
-    private LinearLayout loginLayout;
+
+    private boolean hadSdkInit = false;
     private ScrollView statusScrollView, GGAScrollView;
 
     // 图表
     private LineChart lineChart;
-    private ArrayList<Entry> entries1 = new ArrayList<>();
-    private ArrayList<Entry> entries2 = new ArrayList<>();
-    private ArrayList<Entry> entries3 = new ArrayList<>();
-    private Handler handler = new Handler();
+    private final ArrayList<Entry> entries1 = new ArrayList<>();
+    private final ArrayList<Entry> entries2 = new ArrayList<>();
+    private final ArrayList<Entry> entries3 = new ArrayList<>();
+    private final Handler chartHandler = new Handler();
     private Runnable runnable;
     private long startTime;
     private LinearLayout logShowBodyLayout;
@@ -72,13 +72,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ssrBtnSettings = findViewById(R.id.btnSSRSettings);
-        ephBtnSettings = findViewById(R.id.btnEPHSettings);
-        obsBtnSettings = findViewById(R.id.btnOBSSettings);
 
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch solveSwitch = findViewById(R.id.solve_switch);
 
-        loginLayout = findViewById(R.id.login_body_layout);
         statusScrollView = findViewById(R.id.scrollview_status);
         scrolstautsTextView = findViewById(R.id.scrollable_textview);
         GGAScrollView = findViewById(R.id.scrollView_GGA);
@@ -90,7 +86,26 @@ public class MainActivity extends AppCompatActivity {
         chartShowRadioButton = findViewById(R.id.chart_show);
         logShowRadioButton = findViewById(R.id.log_show);
         lineChart = findViewById(R.id.line_chart);
+        findViewById(R.id.btnIntvSettings).setOnClickListener(view -> {
+            Config.INSTANCE.setIntv(((EditText) findViewById(R.id.editTextSamplingRate)).getText().toString());
+            if (Config.INSTANCE.getIntv().equals("")){
+                Config.INSTANCE.setIntv("1");
+            }
+            double[] res = Utils.xyz2blh(new double[]{-2258208.214700, 5020578.919700, 3210256.397500},1,0,0,0,0,0);
+            System.out.printf("ffffffff %.10f %.10f %.10f\n", res[0]*57.295779513,res[1]*57.295779513,res[2]);
+            res = Utils.blhxyz( res[0] ,res[1] , res[2], 0,0 );
+            System.out.printf("ffffffff %.10f %.10f %.10f\n", res[0] ,res[1] ,res[2]);
+            double[][] array = Utils.rot_xyz2enu_rad( 0.53086257,1.99347594);
+            for (int i = 0; i < array.length; i++) {
+                System.out.print("ffffffff");
+                for (int j = 0; j < array[i].length; j++) {
+                    System.out.print(array[i][j] + " ");
+                }
+                System.out.println();
+            }
 
+            Utils.main2();
+        });
         logShowRadioButton.setSelected(true);
         lineChartLayout.setVisibility(View.GONE);
 
@@ -106,28 +121,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ssrBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
-        ephBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(EPH_PREFERENCES_NAME));
-        obsBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
+        findViewById(R.id.btnSSRSettings).setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
+        findViewById(R.id.btnEPHSettings).setOnClickListener(v -> showNtripSettingsDialog(EPH_PREFERENCES_NAME));
+        findViewById(R.id.btnOBSSettings).setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
 
-        chartShowRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logShowOpenLayout();
-            }
-        });
+        chartShowRadioButton.setOnClickListener(view -> logShowOpenLayout());
 
-        logShowRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showChartLayout();
-            }
-        });
+        logShowRadioButton.setOnClickListener(view -> showChartLayout());
 
         // 图表初始化
         setupChart();
         startTime = System.currentTimeMillis();
-
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -139,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
             copyAssets();
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     private void copyAssets() {
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "开始拷贝文件");
-        FileUtils.copyAssetsToStorage(this, "configures", path);
+        Utils.copyAssetsToStorage(this, "configures", path);
         Log.i(TAG, "结束拷贝文件");
     }
     @Override
@@ -269,8 +272,14 @@ public class MainActivity extends AppCompatActivity {
         double[] enu  = new double[3];
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "SDKInit begin");
-        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
-        SDK.SDKSetIntv(1);
+        if (!hadSdkInit){
+            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+            hadSdkInit = true;
+        }else {
+            SDK.SDKRestart();
+        }
+        int intv = Integer.parseInt(Config.INSTANCE.getIntv());
+        SDK.SDKSetIntv(intv);
         Log.i(TAG, "SDKInit over");
         taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);
@@ -326,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showChartLayout() {
-        logShowBodyLayout.setVisibility(View.VISIBLE);
+        findViewById(R.id.scrollable_GGA_textview_layout).setVisibility(View.VISIBLE);
         llMsgHeader.setVisibility(View.VISIBLE);
         lineChartLayout.setVisibility(View.GONE);
     }
@@ -415,10 +424,10 @@ public class MainActivity extends AppCompatActivity {
                 lineChart.setData(data);
                 lineChart.invalidate(); // Refresh the chart
 
-                handler.postDelayed(this, 3000);
+                chartHandler.postDelayed(this, 3000);
             }
         };
 
-        handler.postDelayed(runnable, 3000);
+        chartHandler.postDelayed(runnable, 3000);
     }
 }

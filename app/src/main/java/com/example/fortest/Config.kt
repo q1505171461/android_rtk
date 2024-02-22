@@ -1,6 +1,7 @@
 package com.example.fortest
 
 object Config {
+    var Intv: String = "1"
     val connectConfig = arrayOf("IP", "Port", "MountPoint", "User", "Password")
     const val SSR_LOGIN_SUCCESS = 1
     const val EPH_LOGIN_SUCCESS = 2
