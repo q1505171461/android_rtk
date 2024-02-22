@@ -32,7 +32,7 @@
     <string name="str_log_clear">Log_clear</string>
     <string name="str_bt_mode_title">BLUETOOTH</string>
     <string name="str_mode_open_title">OPEN</string>
-    <string name="str_only_ggafilter_title">Only GGA</string>
+    <string name="str_show_gga_filter_title">Show GGA</string>
     <string name="str_rtk_receiver_title">RTK receiver</string>
     <string name="str_rcv_enable_title">Enable</string>
     <string name="str_ntrip_title">NTRIP</string>

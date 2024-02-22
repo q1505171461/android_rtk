@@ -14,16 +14,20 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -38,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -67,7 +72,15 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout llMsgHeader;
     private LinearLayout lineChartLayout;
     private RadioButton logShowRadioButton, chartShowRadioButton;
+    private CheckBox ssrCheckBox, ggaCheckBox;
 
+    // 坐标系
+    private EditText editTextXLeft, editTextXRight, editTextYTop, editTextYBottom;
+    private GraphView graphView;
+    private Button btnChartXY;
+    private float defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
+    private Boolean showGGA = false, showSSR = false;
+    List<GraphView.Point> coordinateList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,8 +104,45 @@ public class MainActivity extends AppCompatActivity {
         logShowRadioButton = findViewById(R.id.log_show);
         lineChart = findViewById(R.id.line_chart);
 
+        ssrCheckBox = findViewById(R.id.checkbox_ssr);
+        ggaCheckBox = findViewById(R.id.checkbox_gga);
+
         logShowRadioButton.setSelected(true);
         lineChartLayout.setVisibility(View.GONE);
+
+        editTextXLeft = findViewById(R.id.editTextXLeft);
+        editTextXRight = findViewById(R.id.editTextXRight);
+        editTextYTop = findViewById(R.id.editTextYTop);
+        editTextYBottom = findViewById(R.id.editTextYBottom);
+        graphView = findViewById(R.id.graphImageView);
+        btnChartXY = findViewById(R.id.confirm_button);
+
+        btnChartXY.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String xLeftStr = editTextXLeft.getText().toString();
+                String xRightStr = editTextXRight.getText().toString();
+                String yTopStr = editTextYTop.getText().toString();
+                String yBottomStr = editTextYBottom.getText().toString();
+
+                if (TextUtils.isEmpty(xLeftStr) || TextUtils.isEmpty(xRightStr) || TextUtils.isEmpty(yTopStr) || TextUtils.isEmpty(yBottomStr)) {
+                    // 如果有一个值为空，弹出 Toast 提示用户
+                    Toast.makeText(MainActivity.this, "请确保所有值都已输入", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        defaultXLeft = Integer.parseInt(xLeftStr);
+                        defaultXRight = Integer.parseInt(xRightStr);
+                        defaultYTop = Integer.parseInt(yTopStr);
+                        defaultYBottom = Integer.parseInt(yBottomStr);
+
+                        graphView.setAxisRange(defaultXLeft, defaultXRight, defaultYBottom, defaultYTop);
+                    } catch (NumberFormatException e) {
+                        // 如果转换失败，弹出 Toast 提示用户
+                        Toast.makeText(MainActivity.this, "请输入有效的数字", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
 
         defaultSetting();
         solveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -100,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("connecting to the channel ..."));
                 testupdateChart();
 //                updateChartData(0,0,0);
+                testGraph();
                 begin();
             }else {
                 end();
@@ -127,6 +178,28 @@ public class MainActivity extends AppCompatActivity {
         // 图表初始化
         setupChart();
         startTime = System.currentTimeMillis();
+
+        ggaCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    showGGA = true;
+                } else {
+                    showGGA = false;
+                }
+            }
+        });
+
+        ssrCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    showSSR = true;
+                } else {
+                    showSSR = false;
+                }
+            }
+        });
 
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -420,5 +493,15 @@ public class MainActivity extends AppCompatActivity {
         };
 
         handler.postDelayed(runnable, 3000);
+    }
+
+    private void testGraph() {
+        coordinateList.add(new GraphView.Point(1,1));
+        coordinateList.add(new GraphView.Point(2,2));
+        coordinateList.add(new GraphView.Point(-2,2));
+        coordinateList.add(new GraphView.Point(2,-2));
+        coordinateList.add(new GraphView.Point(-2,-2));
+
+        graphView.setCoordinates(coordinateList);
     }
 }
