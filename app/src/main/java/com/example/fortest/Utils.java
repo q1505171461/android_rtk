@@ -158,12 +158,10 @@ public class Utils {
 
     public static double[][] rot_xyz2enu_rad(double lat, double lon) {
         double[][] rotmat = new double[3][3];
-
         double coslat = Math.cos(lat);
         double sinlat = Math.sin(lat);
         double coslon = Math.cos(lon);
         double sinlon = Math.sin(lon);
-
         rotmat[0][0] = -sinlon;
         rotmat[0][1] = coslon;
         rotmat[0][2] = 0.0;
@@ -173,7 +171,6 @@ public class Utils {
         rotmat[2][0] = coslat * coslon;
         rotmat[2][1] = coslat * sinlon;
         rotmat[2][2] = sinlat;
-
         return rotmat;
     }
 
@@ -228,9 +225,7 @@ public class Utils {
         if (m1Cols != m2Rows) {
             throw new IllegalArgumentException("Matrix dimensions are not compatible for multiplication");
         }
-
         double[][] result = new double[m1Rows][m2Cols];
-
         for (int i = 0; i < m1Rows; i++) {
             for (int j = 0; j < m2Cols; j++) {
                 for (int k = 0; k < m1Cols; k++) {
