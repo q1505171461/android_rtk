@@ -10,4 +10,5 @@ object Config {
     const val OBS_LOGIN_FAIL = 1003
     const val MSG_GGA = 4
     const val MSG_SSR = 5
+    const val SCROLLVIEW_MAX_TEXT_LENGTH = 10000
 }

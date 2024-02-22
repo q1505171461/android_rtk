@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".OnlyForTest">
+    tools:context=".MainActivity">
 
     <RelativeLayout android:id="@+id/ll_module_power"
         style="@style/rl_container">
@@ -43,8 +43,7 @@
             <TextView
                 android:id="@+id/scrollable_textview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:maxLength="4000"
+                android:layout_height="wrap_content"
                 android:textSize="16sp" />
 
         </ScrollView>
@@ -66,7 +65,7 @@
             android:layout_height="match_parent">
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:textSize="20sp"
@@ -89,7 +88,7 @@
             android:layout_height="match_parent">
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="3"
+                android:layout_weight="2"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:textSize="20sp"
@@ -194,9 +193,10 @@
             android:id="@+id/editTextSamplingRate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="请输入采样率"
-            android:inputType="numberDecimal"/>
+            android:layout_weight="2"
+            android:hint="1"
+            android:inputType="numberDecimal"
+            android:autofillHints="1" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -208,11 +208,14 @@
             android:id="@+id/btnIntvSettings"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+
             android:text="@string/settings"
             android:textColor="@android:color/white" />
     </LinearLayout>
 
     <View style="@style/divider_normal" />
+
+
 
     <LinearLayout
         android:id="@+id/ll_msg_header"
@@ -244,6 +247,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/scrollable_GGA_textview_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -262,5 +266,54 @@
         </ScrollView>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/line_chart_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+
+
     <View style="@style/divider_normal" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/working_mod"
+        android:layout_height="30dp">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:textSize="@dimen/text_size"
+            android:id="@+id/log_show"
+            android:textColor="#111"
+            android:text="@string/str_mode_show_log_title"
+            android:checked="true"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:textSize="@dimen/text_size"
+            android:id="@+id/chart_show"
+            android:textColor="#111"
+            android:text="@string/str_mode_chart_show_title"
+            android:layout_height="wrap_content"/>
+    </RadioGroup>
 </LinearLayout>

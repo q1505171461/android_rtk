@@ -67,10 +67,13 @@ class NtripConnectTaskEph extends NtripConnectTask{
         byte[] receivedBytes = new byte[bytesRead];
         System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
         System.out.print("收到Eph数据:");
-        sendStatusMsg();
+
         for (byte b : receivedBytes) {
-            System.out.print(String.format("%02X ", b));
-            SDK.IOInputEphData(b);
+            System.out.print(String.format("%02X \n", b));
+            int a  = SDK.IOInputEphData(b);
+            if (a != 0){
+                sendStatusMsg();
+            }
         }
         System.out.println();
     }
@@ -98,8 +101,11 @@ class NtripConnectTaskSsr extends NtripConnectTask {
         System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
         System.out.print("收到Ssr数据:");
         for (byte b : receivedBytes) {
-            System.out.print(String.format("%02X ", b));
-            SDK.IOInputSsrData(b);
+            System.out.printf("%02X ", b);
+            int a = SDK.IOInputSsrData(b);
+            if (a!= 0){
+                System.out.printf( "\n11111ssr%d\n", a);
+            }
         }
         System.out.println();
         String logstr = SDK.SDKRetrieve("SSR-ALL",  0);
