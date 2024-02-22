@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,63 +20,118 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private static boolean isInitialized = false;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    protected Button ssrBtnSettings, ephBtnSettings, obsBtnSettings;
     private EditText ntripServerEditText, ntripPortEditText, ntripMountEditText, ntripUserEditText, ntripPasswordEditText;
     private TextView scrolstautsTextView,scrolGGATextView;
     private static final String SSR_PREFERENCES_NAME = "ssrNtripSettingsPrefs";
     private static final String EPH_PREFERENCES_NAME = "ephNtripSettingsPrefs";
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
-
     NtripConnectTask taskSSR,taskOBS,taskEPH;
 
-    private LinearLayout loginLayout;
+    private boolean hadSdkInit = false;
     private ScrollView statusScrollView, GGAScrollView;
+
+    // 图表
+    private LineChart lineChart;
+    private final ArrayList<Entry> entries1 = new ArrayList<>();
+    private final ArrayList<Entry> entries2 = new ArrayList<>();
+    private final ArrayList<Entry> entries3 = new ArrayList<>();
+    private final Handler chartHandler = new Handler();
+    private Runnable runnable;
+    private long startTime;
+    private LinearLayout logShowBodyLayout;
+    private LinearLayout llMsgHeader;
+    private LinearLayout lineChartLayout;
+    private RadioButton logShowRadioButton, chartShowRadioButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ssrBtnSettings = findViewById(R.id.btnSSRSettings);
-        ephBtnSettings = findViewById(R.id.btnEPHSettings);
-        obsBtnSettings = findViewById(R.id.btnOBSSettings);
 
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch solveSwitch = findViewById(R.id.solve_switch);
 
-        loginLayout = findViewById(R.id.login_body_layout);
         statusScrollView = findViewById(R.id.scrollview_status);
         scrolstautsTextView = findViewById(R.id.scrollable_textview);
         GGAScrollView = findViewById(R.id.scrollView_GGA);
         scrolGGATextView = findViewById(R.id.scrollable_GGA_textview);
+
+        logShowBodyLayout = findViewById(R.id.scrollable_GGA_textview_layout);
+        lineChartLayout = findViewById(R.id.line_chart_layout);
+        llMsgHeader = findViewById(R.id.ll_msg_header);
+        chartShowRadioButton = findViewById(R.id.chart_show);
+        logShowRadioButton = findViewById(R.id.log_show);
+        lineChart = findViewById(R.id.line_chart);
+        findViewById(R.id.btnIntvSettings).setOnClickListener(view -> {
+            Config.INSTANCE.setIntv(((EditText) findViewById(R.id.editTextSamplingRate)).getText().toString());
+            if (Config.INSTANCE.getIntv().equals("")){
+                Config.INSTANCE.setIntv("1");
+            }
+            double[] res = Utils.xyz2blh(new double[]{-2258208.214700, 5020578.919700, 3210256.397500},1,0,0,0,0,0);
+            System.out.printf("ffffffff %.10f %.10f %.10f\n", res[0]*57.295779513,res[1]*57.295779513,res[2]);
+            res = Utils.blhxyz( res[0] ,res[1] , res[2], 0,0 );
+            System.out.printf("ffffffff %.10f %.10f %.10f\n", res[0] ,res[1] ,res[2]);
+            double[][] array = Utils.rot_xyz2enu_rad( 0.53086257,1.99347594);
+            for (int i = 0; i < array.length; i++) {
+                System.out.print("ffffffff");
+                for (int j = 0; j < array[i].length; j++) {
+                    System.out.print(array[i][j] + " ");
+                }
+                System.out.println();
+            }
+
+            Utils.main2();
+        });
+        logShowRadioButton.setSelected(true);
+        lineChartLayout.setVisibility(View.GONE);
+
         defaultSetting();
         solveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 show_Status_msg(logWithTime("connecting to the channel ..."));
+                testupdateChart();
+//                updateChartData(0,0,0);
                 begin();
             }else {
                 end();
             }
         });
 
-        ssrBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
+        findViewById(R.id.btnSSRSettings).setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
+        findViewById(R.id.btnEPHSettings).setOnClickListener(v -> showNtripSettingsDialog(EPH_PREFERENCES_NAME));
+        findViewById(R.id.btnOBSSettings).setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
 
-        ephBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(EPH_PREFERENCES_NAME));
+        chartShowRadioButton.setOnClickListener(view -> logShowOpenLayout());
 
-        obsBtnSettings.setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
+        logShowRadioButton.setOnClickListener(view -> showChartLayout());
 
+        // 图表初始化
+        setupChart();
+        startTime = System.currentTimeMillis();
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -87,10 +143,18 @@ public class MainActivity extends AppCompatActivity {
             copyAssets();
         }
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        entries1.clear();
+        entries2.clear();
+        entries3.clear();
+    }
+
     private void copyAssets() {
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "开始拷贝文件");
-        FileUtils.copyAssetsToStorage(this, "configures", path);
+        Utils.copyAssetsToStorage(this, "configures", path);
         Log.i(TAG, "结束拷贝文件");
     }
     @Override
@@ -151,15 +215,15 @@ public class MainActivity extends AppCompatActivity {
             scrolstautsTextView.setText(str);
         } else {
             String con = scrolstautsTextView.getText().toString() + "\n" +str;
-//            con.substring();
-            scrolstautsTextView.setText(scrolstautsTextView.getText().toString() + "\n" +str);
+            scrolstautsTextView.setText(con.substring(Math.max(con.length() - Config.SCROLLVIEW_MAX_TEXT_LENGTH, 0)));
         }
         statusScrollView.post(() -> statusScrollView.fullScroll(View.FOCUS_DOWN));
     }
 
     public void show_GGA_or_SSR_msg(String str){
         Log.i(TAG ," show_GGA_msg: " + str);
-        scrolGGATextView.setText(scrolGGATextView.getText().toString()  + str);
+        String con = scrolGGATextView.getText().toString() + str;
+        scrolGGATextView.setText(con.substring(Math.max(con.length() - Config.SCROLLVIEW_MAX_TEXT_LENGTH, 0)));
         GGAScrollView.post(() -> GGAScrollView.fullScroll(View.FOCUS_DOWN));
     }
 
@@ -175,8 +239,6 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("Received OBS data."));
                 break;
             case Config.MSG_GGA:
-                show_GGA_or_SSR_msg(msg.obj.toString());
-                break;
             case Config.MSG_SSR:
                 show_GGA_or_SSR_msg(msg.obj.toString());
                 break;
@@ -210,10 +272,15 @@ public class MainActivity extends AppCompatActivity {
         double[] enu  = new double[3];
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "SDKInit begin");
-        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
-        SDK.SDKSetIntv(1);
+        if (!hadSdkInit){
+            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+            hadSdkInit = true;
+        }else {
+            SDK.SDKRestart();
+        }
+        int intv = Integer.parseInt(Config.INSTANCE.getIntv());
+        SDK.SDKSetIntv(intv);
         Log.i(TAG, "SDKInit over");
-        isInitialized = true;
         taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);
         taskOBS = new NtripConnectTaskObs(OBShashMap, mHandler);
@@ -265,5 +332,102 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formattedDate = dateFormat.format(currentDate);
         return formattedDate + ": " +logContent;
+    }
+
+    private void showChartLayout() {
+        findViewById(R.id.scrollable_GGA_textview_layout).setVisibility(View.VISIBLE);
+        llMsgHeader.setVisibility(View.VISIBLE);
+        lineChartLayout.setVisibility(View.GONE);
+    }
+
+    private void logShowOpenLayout() {
+        logShowBodyLayout.setVisibility(View.GONE);
+        llMsgHeader.setVisibility(View.GONE);
+        lineChartLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void setupChart() {
+        lineChart.getDescription().setEnabled(false);
+        lineChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        lineChart.getXAxis().setGranularity(1f);
+        lineChart.getXAxis().setValueFormatter(new ValueFormatter() {
+            private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                long timestamp = startTime + (long) value * 1000;
+                return dateFormat.format(new Date(timestamp));
+            }
+        });
+
+//        YAxis yAxisLeft = lineChart.getAxisLeft();
+//        YAxis yAxisRight = lineChart.getAxisRight();
+//        yAxisLeft.setAxisMinimum(0f); // 如果你的数据永远不会小于0
+//        yAxisRight.setAxisMinimum(0f);
+//        updateChartData(0, 0, 0);
+
+        // only for test
+        lineChart.getAxisRight().setEnabled(false);
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f);
+    }
+
+    private void updateChartData(float value1, float value2, float value3) {
+        long currentTimeMillis = System.currentTimeMillis();
+
+        // 向数据集添加新的数据点
+        entries1.add(new Entry(currentTimeMillis, value1));
+        entries2.add(new Entry(currentTimeMillis, value2));
+        entries3.add(new Entry(currentTimeMillis, value3));
+
+        // 创建数据集并添加数据
+        LineDataSet dataSet1 = new LineDataSet(entries1, "E");
+        LineDataSet dataSet2 = new LineDataSet(entries2, "N");
+        LineDataSet dataSet3 = new LineDataSet(entries3, "U");
+
+        // 设置数据集样式（可根据需要自定义）
+        dataSet1.setColor(Color.BLUE);
+        dataSet1.setCircleColor(Color.BLUE);
+        dataSet2.setColor(Color.RED);
+        dataSet2.setCircleColor(Color.RED);
+        dataSet3.setColor(Color.GREEN);
+        dataSet3.setCircleColor(Color.GREEN);
+
+        // 创建 LineData 对象并添加数据集
+        LineData lineData = new LineData(dataSet1, dataSet2, dataSet3);
+        lineChart.setData(lineData);
+        lineChart.invalidate(); // 刷新图表
+    }
+
+    private void testupdateChart() {
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // seconds
+
+                entries1.add(new Entry(elapsedTime, 1 + entries1.size()));
+                entries2.add(new Entry(elapsedTime, 2 + entries2.size()));
+                entries3.add(new Entry(elapsedTime, 3 + entries3.size()));
+
+                LineDataSet dataSet1 = new LineDataSet(entries1, "SSR");
+                dataSet1.setColor(Color.BLUE);
+                dataSet1.setCircleColor(Color.BLUE);
+
+                LineDataSet dataSet2 = new LineDataSet(entries2, "EPH");
+                dataSet2.setColor(Color.RED);
+                dataSet2.setCircleColor(Color.RED);
+
+                LineDataSet dataSet3 = new LineDataSet(entries3, "OBS");
+                dataSet3.setColor(Color.GREEN);
+                dataSet3.setCircleColor(Color.GREEN);
+
+                LineData data = new LineData(dataSet1, dataSet2, dataSet3);
+                lineChart.setData(data);
+                lineChart.invalidate(); // Refresh the chart
+
+                chartHandler.postDelayed(this, 3000);
+            }
+        };
+
+        chartHandler.postDelayed(runnable, 3000);
     }
 }

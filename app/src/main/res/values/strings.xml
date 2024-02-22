@@ -498,4 +498,6 @@
     <string name="settings">SET</string>
     <string name="eph">EPH</string>
     <string name="ssr">SSR</string>
+    <string name="str_mode_show_log_title">SHOW LOG</string>
+    <string name="str_mode_chart_show_title">SHOW CHART</string>
 </resources>

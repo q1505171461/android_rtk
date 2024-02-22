@@ -1,6 +1,7 @@
 package com.example.fortest
 
 object Config {
+    var Intv: String = "1"
     val connectConfig = arrayOf("IP", "Port", "MountPoint", "User", "Password")
     const val SSR_LOGIN_SUCCESS = 1
     const val EPH_LOGIN_SUCCESS = 2
@@ -10,4 +11,5 @@ object Config {
     const val OBS_LOGIN_FAIL = 1003
     const val MSG_GGA = 4
     const val MSG_SSR = 5
+    const val SCROLLVIEW_MAX_TEXT_LENGTH = 10000
 }
