@@ -32,12 +32,10 @@ public class GraphView extends View {
         paint.setTextAlign(Align.CENTER);
         setAxisRange(-4,4,-4,4);
     }
-
     public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
         invalidate();
     }
-
     public void setAxisRange(float xMin, float xMax, float yMin, float yMax) {
         this.xMin = xMin;
         this.xMax = xMax;
