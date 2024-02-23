@@ -69,7 +69,7 @@ class NtripConnectTaskEph extends NtripConnectTask{
         System.out.print("收到Eph数据:");
 
         for (byte b : receivedBytes) {
-            System.out.print(String.format("%02X \n", b));
+            System.out.print(String.format("%02X ", b));
             int a  = SDK.IOInputEphData(b);
             if (a != 0){
                 sendStatusMsg();
@@ -92,10 +92,8 @@ class NtripConnectTaskSsr extends NtripConnectTask {
         byte[] buffer = new byte[10240];
         int bytesRead = inputStream.read(buffer);
         if (bytesRead == -1) {
-            // 服务器关闭连接或发生其他错误
             return;
         }
-        sendStatusMsg();
         // 处理从服务器获取的数据，例如更新UI或执行其他操作
         byte[] receivedBytes = new byte[bytesRead];
         System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
@@ -105,6 +103,7 @@ class NtripConnectTaskSsr extends NtripConnectTask {
             int a = SDK.IOInputSsrData(b);
             if (a!= 0){
                 System.out.printf( "\n11111ssr%d\n", a);
+                sendStatusMsg();
             }
         }
         System.out.println();
@@ -161,7 +160,7 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
 
             // 循环读取服务器发送的数据
             String response = in.readLine();
-            Log.d(TAG, "Received Obs data from Ntrip server: " + response);
+            Log.d(TAG, "Received data from Ntrip server: " + response);
             while (enableRunning) {
                 handleReceivedData(inputStream);
             }
@@ -199,7 +198,7 @@ abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
             return false;
         }
         NTRIP_SERVER_IP = config.get(configs[0]);
-        NTRIP_SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configs[1]))) ;
+        NTRIP_SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configs[1])));
         MOUNTPOINT = config.get(configs[2]);
         USERNAME = config.get(configs[3]);
         PASSWORD = config.get(configs[4]);

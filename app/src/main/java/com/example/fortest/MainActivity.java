@@ -120,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 System.out.println();
             }
-
             Utils.main2();
         });
         logShowRadioButton.setSelected(true);
@@ -179,32 +178,25 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnOBSSettings).setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
 
         chartShowRadioButton.setOnClickListener(view -> logShowOpenLayout());
-
         logShowRadioButton.setOnClickListener(view -> showChartLayout());
 
         // 图表初始化
         setupChart();
         startTime = System.currentTimeMillis();
 
-        ggaCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+        ggaCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
 //                    showGGA = true;
-                } else {
+            } else {
 //                    showGGA = false;
-                }
             }
         });
 
-        ssrCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+        ssrCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
 //                    showSSR = true;
-                } else {
+            } else {
 //                    showSSR = false;
-                }
             }
         });
 
@@ -483,15 +475,15 @@ public class MainActivity extends AppCompatActivity {
                 entries2.add(new Entry(elapsedTime, 2 + entries2.size()));
                 entries3.add(new Entry(elapsedTime, 3 + entries3.size()));
 
-                LineDataSet dataSet1 = new LineDataSet(entries1, "SSR");
+                LineDataSet dataSet1 = new LineDataSet(entries1, "E");
                 dataSet1.setColor(Color.BLUE);
                 dataSet1.setCircleColor(Color.BLUE);
 
-                LineDataSet dataSet2 = new LineDataSet(entries2, "EPH");
+                LineDataSet dataSet2 = new LineDataSet(entries2, "N");
                 dataSet2.setColor(Color.RED);
                 dataSet2.setCircleColor(Color.RED);
 
-                LineDataSet dataSet3 = new LineDataSet(entries3, "OBS");
+                LineDataSet dataSet3 = new LineDataSet(entries3, "U");
                 dataSet3.setColor(Color.GREEN);
                 dataSet3.setCircleColor(Color.GREEN);
 
