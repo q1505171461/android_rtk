@@ -18,12 +18,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-<<<<<<< HEAD
+
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-=======
->>>>>>> 05e6ee95d442950ce9ae9a17c6c82edb275de5d9
+
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -102,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
         chartShowRadioButton = findViewById(R.id.chart_show);
         logShowRadioButton = findViewById(R.id.log_show);
         lineChart = findViewById(R.id.line_chart);
+        ssrCheckBox = findViewById(R.id.checkbox_ssr);
+        ggaCheckBox = findViewById(R.id.checkbox_gga);
         findViewById(R.id.btnIntvSettings).setOnClickListener(view -> {
             Config.INSTANCE.setIntv(((EditText) findViewById(R.id.editTextSamplingRate)).getText().toString());
             if (Config.INSTANCE.getIntv().equals("")){
@@ -120,14 +121,8 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println();
             }
 
-<<<<<<< HEAD
-        ssrCheckBox = findViewById(R.id.checkbox_ssr);
-        ggaCheckBox = findViewById(R.id.checkbox_gga);
-
-=======
             Utils.main2();
         });
->>>>>>> 05e6ee95d442950ce9ae9a17c6c82edb275de5d9
         logShowRadioButton.setSelected(true);
         lineChartLayout.setVisibility(View.GONE);
 
@@ -171,12 +166,9 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("connecting to the channel ..."));
                 testupdateChart();
 //                updateChartData(0,0,0);
-<<<<<<< HEAD
+
                 testGraph();
-                begin();
-=======
                 start();
->>>>>>> 05e6ee95d442950ce9ae9a17c6c82edb275de5d9
             }else {
                 end();
             }
@@ -194,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
         setupChart();
         startTime = System.currentTimeMillis();
 
-<<<<<<< HEAD
         ggaCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -217,9 +208,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-=======
->>>>>>> 05e6ee95d442950ce9ae9a17c6c82edb275de5d9
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "no permission to read");
@@ -516,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
         };
         chartHandler.postDelayed(runnable, 3000);
     }
-<<<<<<< HEAD
+
 
     private void testGraph() {
         coordinateList.add(new GraphView.Point(1,1));
@@ -528,6 +516,4 @@ public class MainActivity extends AppCompatActivity {
         graphView.setCoordinates(coordinateList);
     }
 }
-=======
-}
->>>>>>> 05e6ee95d442950ce9ae9a17c6c82edb275de5d9
+
