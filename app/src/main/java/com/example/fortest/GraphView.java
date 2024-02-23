@@ -51,8 +51,8 @@ public class GraphView extends View {
         float centerX = getWidth() / 2;
         float centerY = getHeight() / 2;
 
-        float xRange = xMax - xMin;
-        float yRange = yMax - yMin;
+        float xRange = (xMax - xMin)/2;
+        float yRange = (yMax - yMin)/2;
 
         float axisLength = Math.min(getWidth(), getHeight()) * 0.8f / 2;
 
@@ -62,28 +62,40 @@ public class GraphView extends View {
 
         // 绘制 x 轴上的数字
         Log.i("YCJ", " centerX = " + centerX + " centerY = " + centerY + " axisLength = " + axisLength);
+        float XCenter = (xMin + xMax) /2;
         for (float i = xMin; i <= xMax; i++) {
-            float x = centerX + i * axisLength / (xRange/2);
+            float x;
+            if (i < XCenter) {
+                x = centerX - Math.abs(i-XCenter) * axisLength / xRange;
+            } else {
+                x = centerX + Math.abs(i-XCenter) * axisLength / xRange;
+            }
             float y = centerY;
             canvas.drawText(String.valueOf(i), x, centerY + 20, paint);
         }
 
         Log.i("YCJ", "ymin = " + yMin + " yMax = " + yMax);
         // 绘制 y 轴上的数字
+        float YCenter = (yMin + yMax) /2;
         for (float i = yMin; i <= yMax; i++) {
-            if (i == 0) {
+            if (i == YCenter) {
                 continue;
             }
+            float y;
+            if (i < YCenter) {
+                y = centerY + Math.abs(i - YCenter) * axisLength / yRange;
+            } else {
+                y = centerY - Math.abs(i - YCenter) * axisLength / yRange;
+            }
             float x = centerX;
-            float y = centerY - i * axisLength /  (yRange/2);
             canvas.drawText(String.valueOf(i), centerX - 10, y, paint);
         }
 
         // 绘制坐标点
         if (coordinates != null) {
             for (Point point : coordinates) {
-                float x = centerX + point.x * axisLength / (xRange/2);
-                float y = centerY - point.y * axisLength / (yRange/2);
+                float x = centerX + point.x * axisLength / xRange;
+                float y = centerY - point.y * axisLength / yRange;
                 paint.setStyle(Paint.Style.FILL);  // 设置画笔样式为实心
                 canvas.drawCircle(x, y, 5, paint);
                 // 显示坐标值
