@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private GraphView graphView;
     private Button btnChartXY;
     private float defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
-    private Boolean showGGA = false, showSSR = false;
+//    private Boolean showGGA = false, showSSR = false;
     List<GraphView.Point> coordinateList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,9 +183,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    showGGA = true;
+//                    showGGA = true;
                 } else {
-                    showGGA = false;
+//                    showGGA = false;
                 }
             }
         });
@@ -194,9 +194,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    showSSR = true;
+//                    showSSR = true;
                 } else {
-                    showSSR = false;
+//                    showSSR = false;
                 }
             }
         });
