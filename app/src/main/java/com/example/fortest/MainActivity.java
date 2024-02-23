@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private GraphView graphView;
     private Button btnChartXY;
     private float defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
-//    private Boolean showGGA = false, showSSR = false;
+    private Boolean showGGA = false, showSSR = false;
     List<GraphView.Point> coordinateList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         lineChart = findViewById(R.id.line_chart);
         ssrCheckBox = findViewById(R.id.checkbox_ssr);
         ggaCheckBox = findViewById(R.id.checkbox_gga);
+        ggaCheckBox.setChecked(true);
         findViewById(R.id.btnIntvSettings).setOnClickListener(view -> {
             Config.INSTANCE.setIntv(((EditText) findViewById(R.id.editTextSamplingRate)).getText().toString());
             if (Config.INSTANCE.getIntv().equals("")){
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         editTextYBottom = findViewById(R.id.editTextYBottom);
         graphView = findViewById(R.id.graphImageView);
         btnChartXY = findViewById(R.id.confirm_button);
+
 
         btnChartXY.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,9 +192,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-//                    showGGA = true;
+                    showGGA = true;
                 } else {
-//                    showGGA = false;
+                    showGGA = false;
                 }
             }
         });
@@ -201,9 +203,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-//                    showSSR = true;
+                    showSSR = true;
                 } else {
-//                    showSSR = false;
+                    showSSR = false;
                 }
             }
         });
