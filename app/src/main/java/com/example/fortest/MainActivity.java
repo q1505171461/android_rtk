@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private GraphView graphView;
     private Button btnChartXY;
     private float defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
-    private Boolean showGGA = false, showSSR = false;
+    private Boolean showGGA = true, showSSR = false;
     List<GraphView.Point> coordinateList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println();
             }
             Utils.main2();
+            GGAData.INSTANCE.addGga("$GPGGA,091537.00,3024.9710708,N,11413.0654687,E,1,00,0.00,0.000,M,22.489,M,1.0,*72");
         });
         logShowRadioButton.setSelected(true);
         lineChartLayout.setVisibility(View.GONE);
@@ -134,29 +135,25 @@ public class MainActivity extends AppCompatActivity {
         btnChartXY = findViewById(R.id.confirm_button);
 
 
-        btnChartXY.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String xLeftStr = editTextXLeft.getText().toString();
-                String xRightStr = editTextXRight.getText().toString();
-                String yTopStr = editTextYTop.getText().toString();
-                String yBottomStr = editTextYBottom.getText().toString();
+        btnChartXY.setOnClickListener(v -> {
+            String xLeftStr = editTextXLeft.getText().toString();
+            String xRightStr = editTextXRight.getText().toString();
+            String yTopStr = editTextYTop.getText().toString();
+            String yBottomStr = editTextYBottom.getText().toString();
 
-                if (TextUtils.isEmpty(xLeftStr) || TextUtils.isEmpty(xRightStr) || TextUtils.isEmpty(yTopStr) || TextUtils.isEmpty(yBottomStr)) {
-                    // 如果有一个值为空，弹出 Toast 提示用户
-                    Toast.makeText(MainActivity.this, "请确保所有值都已输入", Toast.LENGTH_SHORT).show();
-                } else {
-                    try {
-                        defaultXLeft = Integer.parseInt(xLeftStr);
-                        defaultXRight = Integer.parseInt(xRightStr);
-                        defaultYTop = Integer.parseInt(yTopStr);
-                        defaultYBottom = Integer.parseInt(yBottomStr);
-
-                        graphView.setAxisRange(defaultXLeft, defaultXRight, defaultYBottom, defaultYTop);
-                    } catch (NumberFormatException e) {
-                        // 如果转换失败，弹出 Toast 提示用户
-                        Toast.makeText(MainActivity.this, "请输入有效的数字", Toast.LENGTH_SHORT).show();
-                    }
+            if (TextUtils.isEmpty(xLeftStr) || TextUtils.isEmpty(xRightStr) || TextUtils.isEmpty(yTopStr) || TextUtils.isEmpty(yBottomStr)) {
+                // 如果有一个值为空，弹出 Toast 提示用户
+                Toast.makeText(MainActivity.this, "请确保所有值都已输入", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    defaultXLeft = Integer.parseInt(xLeftStr);
+                    defaultXRight = Integer.parseInt(xRightStr);
+                    defaultYTop = Integer.parseInt(yTopStr);
+                    defaultYBottom = Integer.parseInt(yBottomStr);
+                    graphView.setAxisRange(defaultXLeft, defaultXRight, defaultYBottom, defaultYTop);
+                } catch (NumberFormatException e) {
+                    // 如果转换失败，弹出 Toast 提示用户
+                    Toast.makeText(MainActivity.this, "请输入有效的数字", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -165,10 +162,6 @@ public class MainActivity extends AppCompatActivity {
         solveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 show_Status_msg(logWithTime("connecting to the channel ..."));
-                testupdateChart();
-//                updateChartData(0,0,0);
-
-                testGraph();
                 start();
             }else {
                 end();
@@ -315,8 +308,18 @@ public class MainActivity extends AppCompatActivity {
                 show_Status_msg(logWithTime("Received OBS data."));
                 break;
             case Config.MSG_GGA:
+                if (showGGA){
+                    show_GGA_or_SSR_msg(msg.obj.toString());
+                }
+                GGAData.INSTANCE.addGga(msg.obj.toString());
+                double[] enu = GGAData.INSTANCE.getLastEnu();
+                updateChartData((float) enu[0], (float) enu[1], (float) enu[2]);
+                testGraph((float) enu[0], (float) enu[1]);
+                break;
             case Config.MSG_SSR:
-                show_GGA_or_SSR_msg(msg.obj.toString());
+                if (showSSR){
+                    show_GGA_or_SSR_msg(msg.obj.toString());
+                }
                 break;
             default:
                 break;
@@ -435,20 +438,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        YAxis yAxisLeft = lineChart.getAxisLeft();
-//        YAxis yAxisRight = lineChart.getAxisRight();
-//        yAxisLeft.setAxisMinimum(0f); // 如果你的数据永远不会小于0
-//        yAxisRight.setAxisMinimum(0f);
-//        updateChartData(0, 0, 0);
-
-        // only for test
         lineChart.getAxisRight().setEnabled(false);
         YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setAxisMinimum(0f);
+//        leftAxis.setAxisMinimum(0f);
     }
 
     private void updateChartData(float value1, float value2, float value3) {
-        long currentTimeMillis = System.currentTimeMillis();
+        long currentTimeMillis = (System.currentTimeMillis() - startTime) / 1000;
 
         // 向数据集添加新的数据点
         entries1.add(new Entry(currentTimeMillis, value1));
@@ -507,13 +503,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void testGraph() {
-        coordinateList.add(new GraphView.Point(1,1));
-        coordinateList.add(new GraphView.Point(2,2));
-        coordinateList.add(new GraphView.Point(-2,2));
-        coordinateList.add(new GraphView.Point(2,-2));
-        coordinateList.add(new GraphView.Point(-2,-2));
-
+    private void testGraph(float value1, float value2) {
+        coordinateList.add(new GraphView.Point(value1,value2));
         graphView.setCoordinates(coordinateList);
     }
 }
