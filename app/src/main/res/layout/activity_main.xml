@@ -309,6 +309,7 @@
                         android:id="@+id/editTextXLeft"
                         android:layout_width="0dp"
                         android:layout_weight="1"
+                        android:textSize="18dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
 
@@ -328,8 +329,8 @@
                         android:id="@+id/editTextXRight"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:textSize="18dp"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -348,8 +349,8 @@
                         android:id="@+id/editTextYTop"
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:textSize="18dp"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -368,6 +369,7 @@
                         android:id="@+id/editTextYBottom"
                         android:layout_width="0dp"
                         android:layout_weight="1"
+                        android:textSize="18dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
 
