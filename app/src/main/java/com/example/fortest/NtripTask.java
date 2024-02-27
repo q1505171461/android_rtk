@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import android.util.Base64;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Objects;
@@ -279,5 +280,33 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
         this.SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configStr[1])));
         enableRunning = true;
         return true;
+    }
+}
+class GGATCPServer extends AsyncTask<Void, Void, Void> {
+    @Override
+    protected Void doInBackground(Void... voids) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(12345); // 监听端口12345
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept(); // 等待客户端连接
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+                // 读取客户端发送的数据
+                String clientData = in.readLine();
+                System.out.println("Received data from client: " + clientData);
+
+                // 向客户端发送数据
+                out.println("Hello Client");
+
+                // 关闭连接
+                clientSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

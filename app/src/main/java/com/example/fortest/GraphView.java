@@ -31,7 +31,7 @@ public class GraphView extends View {
         paint.setAntiAlias(true);
         paint.setTextSize(16);
         paint.setTextAlign(Align.CENTER);
-        setAxisRange(-0.6,0.6,-0.6,0.6);
+        setAxisRange(-0.06,0.06,-0.06,0.06);
     }
     public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
@@ -73,7 +73,12 @@ public class GraphView extends View {
             BigDecimal b = new BigDecimal(xValue);
             //保留2位小数
             double f1 = b.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-            canvas.drawText(String.valueOf(f1), x, centerY + 20, paint);
+            String stringValue1 = String.valueOf(f1).replaceAll("(\\.[1-9]*)0*$", "$1");  // 删除末尾的零
+            System.out.printf("\n11111111111%s %s\n", stringValue1, String.valueOf(f1));
+            if (!(i==1 || i == 2 || i == 4 || i == 5)){
+                canvas.drawText(stringValue1, x, centerY + 20, paint);
+            }
+
             canvas.drawLine(x,y,x,y-10,paint);
 //            Y轴上的坐标
             if (i == 3) {
@@ -83,10 +88,16 @@ public class GraphView extends View {
             float y1 = centerY - (i - 3)  * axisLength / 3;
             double yValue = yMin + ((yMax - yMin) / 6) * i;
             BigDecimal b1 = new BigDecimal(yValue);
+
             //保留2位小数
             double f2 = b1.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+            String stringValue2 = String.valueOf(f2).replaceAll("(\\.\\d*[1-9])0*$", "$1");  // 删除末尾的零
+//            System.out.printf("\n11111111111%s\n", stringValue2);
             canvas.drawLine(x1,y1,x1+10,y1,paint);
-            canvas.drawText(String.valueOf(f2), centerX - 14, y1, paint);
+            if (!(i==1 || i == 2 || i == 4 || i == 5)){
+                canvas.drawText(stringValue2, centerX - 14, y1, paint);
+            }
+
         }
 
         // 绘制 y 轴上的数字

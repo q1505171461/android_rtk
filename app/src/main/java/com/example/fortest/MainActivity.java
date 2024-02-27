@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SSR_PREFERENCES_NAME = "ssrNtripSettingsPrefs";
     private static final String EPH_PREFERENCES_NAME = "ephNtripSettingsPrefs";
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
-    NtripConnectTask taskSSR,taskOBS,taskEPH;
+    NtripConnectTask taskSSR,taskOBS,taskEPH,taskGGASer;
 
     private boolean hadSdkInit = false;
     private ScrollView statusScrollView, GGAScrollView;
@@ -347,24 +347,25 @@ public class MainActivity extends AppCompatActivity {
                 OBShashMap.put(argname, OBSsharedPreferences.getString(argname,"badarg"));
             }
         }
-        String mode = "kinematic";
-        double[] pos = {-2258208.214700, 5020578.919700, 3210256.397500};
-        double[] enu  = new double[3];
-        String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
-        Log.i(TAG, "SDKInit begin");
-//        if (!hadSdkInit){
-//            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
-//            hadSdkInit = true;
-//        }else {
-//            SDK.SDKRestart();
-//        }
-        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+        if (!hadSdkInit){
+            String mode = "kinematic";
+            double[] pos = {-2258208.214700, 5020578.919700, 3210256.397500};
+            double[] enu  = new double[3];
+            String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
+            Log.i(TAG, "SDKInit begin");
+            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+            hadSdkInit = true;
+        }else {
+            SDK.SDKRestart();
+        }
+//        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
         int intv = Integer.parseInt(Config.INSTANCE.getIntv());
         SDK.SDKSetIntv(intv);
         Log.i(TAG, "SDKInit over");
         taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);
         taskOBS = new NtripConnectTaskObs(OBShashMap, mHandler);
+//        taskGGASer = new GGATCPServer();
         Log.i(TAG, "Eph接收数据开始执行");
         taskEPH.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Ssr接收数据开始执行");
