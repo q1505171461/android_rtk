@@ -10,7 +10,7 @@ object GGAData {
     var referencePos : DoubleArray = doubleArrayOf(0.0,0.0,0.0,0.0)
     fun  addGga(gga: String){
         val tblh = gga2tblh(gga)
-        val xyz = Utils.blhxyz(tblh[1],tblh[2],tblh[3],0.0,0.0)
+        val xyz = Utils.blhxyz(tblh[2],tblh[1],tblh[3],0.0,0.0)
         System.out.printf("vvvvvvvvv1%.5f %.5f %.5f ",xyz[0],xyz[1],xyz[2])
         data.add(doubleArrayOf(tblh[0],xyz[0],xyz[1],xyz[2]))
         if (0.toLong() == referencePos[0].toLong()){
@@ -20,17 +20,17 @@ object GGAData {
     fun getLastEnu() : DoubleArray{
         val refpos = doubleArrayOf(referencePos[1],referencePos[2],referencePos[3])
         val lastpos = doubleArrayOf(data.last()[1],data.last()[2],data.last()[3])
-        println("\nvvvvv"+Arrays.toString(refpos))
-        println("vvvvv"+Arrays.toString(lastpos))
+        println("\ngetLastEnu: "+Arrays.toString(refpos))
+        println("\ngetLastEnu: "+Arrays.toString(lastpos))
         val result = Utils.pos2enu(refpos, lastpos)
         for (row in result) {
-            print("vvvvvv")
+            print("\ngetLastEnu: enu:")
             println(row[0])
         }
         return  doubleArrayOf(result[0][0],result[1][0],result[2][0])
     }
     fun  gga2tblh(gpggaString :String): DoubleArray{
-//        val gpggaString = "\$GPGGA,080714.00,3024.9710708,N,11413.0654687,E,1,00,0.00,,M,22.489,M,1.0,*71"
+//        val gpggaString = "\$GPGGA,003958.00,3024.9710678,N,11413.0654705,E,4,25,0.90,0.000,M,22.486,M,1.0,*75"
         val parts = gpggaString.split(',')
 
         // 提取时间、纬度和经度

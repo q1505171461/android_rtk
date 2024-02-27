@@ -176,9 +176,10 @@ public class Utils {
 
     public static double[][] pos2enu(double[] pos_1, double[] pos_2) {
         double[] geod = xyz2blh(pos_1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        System.out.printf("%.11f %.11f %.11f \n" , geod[0], geod[1], geod[2]);
+        System.out.printf("pos2enu：geod %.11f %.11f %.11f \n" , geod[0], geod[1], geod[2]);
         double[][] rot_l2f = rot_xyz2enu_rad(geod[0], geod[1]);
         for (int i = 0; i < rot_l2f.length; i++) {
+            System.out.print("pos2enu：rot_l2f： ");
             for (int j = 0; j < rot_l2f[i].length; j++) {
                 System.out.print(rot_l2f[i][j] + " ");
             }
@@ -239,11 +240,11 @@ public class Utils {
 
     public static void main2() {
         double[] pos_1 = {-2258208.214700, 5020578.919700, 3210256.397500};
-        double[] pos_2 = {-2258209.214700, 5020579.919700, 3210258.397500};
+        double[] pos_2 = {-2258209.214700, 5020579.819700, 3210258.397500};
 
         double[][] result = pos2enu(pos_1, pos_2);
         for (double[] row : result) {
-            System.out.print("fffff");
+            System.out.print("main2： ");
             System.out.println(Arrays.toString(row));
         }
     }

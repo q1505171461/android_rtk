@@ -22,6 +22,7 @@ class NtripConnectTaskObs extends NtripConnectTask{
         byte[] buffer = new byte[1024];
         int bytesRead = inputStream.read(buffer);
         if (bytesRead == -1) {
+            System.out.print("收到Obs数据:bad");
             return;
         }
         // 处理从服务器获取的数据，例如更新UI或执行其他操作
@@ -30,7 +31,9 @@ class NtripConnectTaskObs extends NtripConnectTask{
         System.out.print("收到Obs数据:");
         for (byte b : receivedBytes) {
             System.out.print(String.format("%02X ", b));
-            if (1 == SDK.IOInputObsData(b)) {
+            int ret = SDK.IOInputObsData(b);
+//            System.out.printf("\n收到Obs数据ret:%d\n",ret);
+            if (1 == ret) {
                 sendStatusMsg();
                 String gga = SDK.SDKRetrieve("NMEA_GGA",  104);
                 sendMsg_GGA(gga);
@@ -58,6 +61,11 @@ class NtripConnectTaskEph extends NtripConnectTask{
         super(config, handler);
     }
     protected void handleReceivedData(InputStream inputStream) throws IOException {
+//        try {
+//            Thread.sleep(500);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         byte[] buffer = new byte[10240];
         int bytesRead = inputStream.read(buffer);
         if (bytesRead == -1) {
@@ -67,13 +75,10 @@ class NtripConnectTaskEph extends NtripConnectTask{
         byte[] receivedBytes = new byte[bytesRead];
         System.arraycopy(buffer, 0, receivedBytes, 0, bytesRead);
         System.out.print("收到Eph数据:");
-
+        sendStatusMsg();
         for (byte b : receivedBytes) {
             System.out.print(String.format("%02X ", b));
-            int a  = SDK.IOInputEphData(b);
-            if (a != 0){
-                sendStatusMsg();
-            }
+            SDK.IOInputEphData(b);
         }
         System.out.println();
     }
@@ -101,16 +106,17 @@ class NtripConnectTaskSsr extends NtripConnectTask {
         for (byte b : receivedBytes) {
             System.out.printf("%02X ", b);
             int a = SDK.IOInputSsrData(b);
-            if (a!= 0){
-                System.out.printf( "\n11111ssr%d\n", a);
-                sendStatusMsg();
+            if (a == 10){
+                String logstr = SDK.SDKRetrieve("SSR-ALL",  0);
+                for (String line : logstr.split("\n")){
+                    sendStatusMsg();
+                    sendSsrMsg(line);
+                    Log.i("ssrlog", line);
+                }
             }
         }
         System.out.println();
-        String logstr = SDK.SDKRetrieve("SSR-ALL",  0);
-        for (String line : logstr.split("\n")){
-            Log.i("ssrlog", line);
-        }
+
     }
 
     void sendStatusMsg(){
@@ -118,7 +124,12 @@ class NtripConnectTaskSsr extends NtripConnectTask {
         msg.what = Config.SSR_LOGIN_SUCCESS;
         handler.sendMessage(msg);
     }
-
+    void sendSsrMsg(String str){
+        Message msg = new Message();
+        msg.what = Config.MSG_SSR;
+        msg.obj = str;
+        handler.sendMessage(msg);
+    }
 }
 abstract class NtripConnectTask extends AsyncTask<Void, Void, Void>{
     protected String TAG = "NtripTask";

@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.printf("ffffffff %.10f %.10f %.10f\n", res[0] ,res[1] ,res[2]);
             double[][] array = Utils.rot_xyz2enu_rad( 0.53086257,1.99347594);
             for (int i = 0; i < array.length; i++) {
-                System.out.print("ffffffff");
+                System.out.print("rot_xyz2enu_rad ");
                 for (int j = 0; j < array[i].length; j++) {
                     System.out.print(array[i][j] + " ");
                 }
@@ -351,12 +351,13 @@ public class MainActivity extends AppCompatActivity {
         double[] enu  = new double[3];
         String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
         Log.i(TAG, "SDKInit begin");
-        if (!hadSdkInit){
-            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
-            hadSdkInit = true;
-        }else {
-            SDK.SDKRestart();
-        }
+//        if (!hadSdkInit){
+//            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+//            hadSdkInit = true;
+//        }else {
+//            SDK.SDKRestart();
+//        }
+        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
         int intv = Integer.parseInt(Config.INSTANCE.getIntv());
         SDK.SDKSetIntv(intv);
         Log.i(TAG, "SDKInit over");
@@ -389,12 +390,22 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
         SharedPreferences EPHsharedPreferences = getSharedPreferences(EPH_PREFERENCES_NAME, MODE_PRIVATE);
         editor = EPHsharedPreferences.edit();
-        editor.putString("IP", "119.96.169.117");
-        editor.putString("Port", "7001");
-        editor.putString("Port", "12101");
-        editor.putString("MountPoint","RTCM32EPH");
-        editor.putString("User", "kplcors");
-        editor.putString("Password","123");
+//        editor.putString("IP", "119.96.169.117");
+//        editor.putString("Port", "7001");
+//        editor.putString("Port", "12101");
+//        editor.putString("MountPoint","RTCM32EPH");
+//        editor.putString("User", "kplcors");
+//        editor.putString("Password","123");
+//        editor.putString("IP", "139.129.228.247");
+//        editor.putString("Port", "2101");
+//        editor.putString("MountPoint","RTCM3EPH-MGEX");
+//        editor.putString("User", "WhuRtpp");
+//        editor.putString("Password","whu2015");
+        editor.putString("IP", "119.96.228.250");
+        editor.putString("Port", "8071");
+        editor.putString("MountPoint","EPHAIO");
+        editor.putString("User", "WhuRtpp");
+        editor.putString("Password","whu2015");
         editor.apply();
         SharedPreferences OBSsharedPreferences = getSharedPreferences(OBS_PREFERENCES_NAME, MODE_PRIVATE);
         editor = OBSsharedPreferences.edit();
