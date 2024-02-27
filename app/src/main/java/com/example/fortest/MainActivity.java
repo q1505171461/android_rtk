@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextXLeft, editTextXRight, editTextYTop, editTextYBottom;
     private GraphView graphView;
     private Button btnChartXY;
-    private float defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
+    private double defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
     private Boolean showGGA = true, showSSR = false;
     List<GraphView.Point> coordinateList = new ArrayList<>();
     @Override
@@ -140,16 +140,17 @@ public class MainActivity extends AppCompatActivity {
             String xRightStr = editTextXRight.getText().toString();
             String yTopStr = editTextYTop.getText().toString();
             String yBottomStr = editTextYBottom.getText().toString();
+            Log.i(TAG, " ycj xLeftStr = " + xLeftStr + " xRightStr = " + xRightStr + " yTopStr = " + yTopStr + " yBottomStr = " + yBottomStr);
 
             if (TextUtils.isEmpty(xLeftStr) || TextUtils.isEmpty(xRightStr) || TextUtils.isEmpty(yTopStr) || TextUtils.isEmpty(yBottomStr)) {
                 // 如果有一个值为空，弹出 Toast 提示用户
                 Toast.makeText(MainActivity.this, "请确保所有值都已输入", Toast.LENGTH_SHORT).show();
             } else {
                 try {
-                    defaultXLeft = Integer.parseInt(xLeftStr);
-                    defaultXRight = Integer.parseInt(xRightStr);
-                    defaultYTop = Integer.parseInt(yTopStr);
-                    defaultYBottom = Integer.parseInt(yBottomStr);
+                    defaultXLeft = Double.parseDouble(xLeftStr);
+                    defaultXRight = Double.parseDouble(xRightStr);
+                    defaultYTop = Double.parseDouble(yTopStr);
+                    defaultYBottom = Double.parseDouble(yBottomStr);
                     graphView.setAxisRange(defaultXLeft, defaultXRight, defaultYBottom, defaultYTop);
                 } catch (NumberFormatException e) {
                     // 如果转换失败，弹出 Toast 提示用户
