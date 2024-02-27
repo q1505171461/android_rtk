@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class GraphView extends View {
@@ -28,19 +29,19 @@ public class GraphView extends View {
         paint.setStrokeWidth(1);
         paint.setStyle(Paint.Style.STROKE);
         paint.setAntiAlias(true);
-        paint.setTextSize(10);
+        paint.setTextSize(16);
         paint.setTextAlign(Align.CENTER);
-        setAxisRange(-4,4,-4,4);
+        setAxisRange(-0.6,0.6,-0.6,0.6);
     }
     public void setCoordinates(List<Point> coordinates) {
         this.coordinates = coordinates;
         invalidate();
     }
-    public void setAxisRange(float xMin, float xMax, float yMin, float yMax) {
-        this.xMin = xMin;
-        this.xMax = xMax;
-        this.yMin = yMin;
-        this.yMax = yMax;
+    public void setAxisRange(double xMin, double xMax, double yMin, double yMax) {
+        this.xMin = (float) xMin;
+        this.xMax = (float) xMax;
+        this.yMin = (float) yMin;
+        this.yMax = (float) yMax;
         invalidate();
     }
 
@@ -51,9 +52,6 @@ public class GraphView extends View {
         float centerX = getWidth() / 2;
         float centerY = getHeight() / 2;
 
-        float xRange = (xMax - xMin)/2;
-        float yRange = (yMax - yMin)/2;
-
         float axisLength = Math.min(getWidth(), getHeight()) * 0.8f / 2;
 
         // 绘制坐标轴
@@ -61,35 +59,61 @@ public class GraphView extends View {
         canvas.drawLine(centerX, centerY - axisLength, centerX, centerY + axisLength, paint);
 
         // 绘制 x 轴上的数字
-        Log.i("YCJ", " centerX = " + centerX + " centerY = " + centerY + " axisLength = " + axisLength);
-        float XCenter = (xMin + xMax) /2;
-        for (float i = xMin; i <= xMax; i++) {
-            float x = centerX + (i - XCenter) * axisLength / xRange;
-            float y = centerY;
-            canvas.drawText(String.valueOf(i), x, centerY + 20, paint);
-        }
+//        for (float i = xMin; i <= xMax; i++) {
+//            float x = centerX + (i - XCenter) * axisLength / xRange;
+//            float y = centerY;
+//            canvas.drawText(String.valueOf(i), x, centerY + 20, paint);
+//        }
 
-        Log.i("YCJ", "ymin = " + yMin + " yMax = " + yMax);
-        // 绘制 y 轴上的数字
-        float YCenter = (yMin + yMax) /2;
-        for (float i = yMin; i <= yMax; i++) {
-            if (i == YCenter) {
+        for (int i = 0; i < 7; i++) {
+//            X轴上的坐标
+            float x = centerX + (i - 3)  * axisLength / 3;
+            float y = centerY;
+            double xValue = xMin + ((xMax - xMin) / 6) * i;
+            BigDecimal b = new BigDecimal(xValue);
+            //保留2位小数
+            double f1 = b.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+            canvas.drawText(String.valueOf(f1), x, centerY + 20, paint);
+            canvas.drawLine(x,y,x,y-10,paint);
+//            Y轴上的坐标
+            if (i == 3) {
                 continue;
             }
-            float y = centerY - (i - YCenter) * axisLength / yRange;
-            float x = centerX;
-            canvas.drawText(String.valueOf(i), centerX - 10, y, paint);
+            float x1 = centerX;
+            float y1 = centerY - (i - 3)  * axisLength / 3;
+            double yValue = yMin + ((yMax - yMin) / 6) * i;
+            BigDecimal b1 = new BigDecimal(yValue);
+            //保留2位小数
+            double f2 = b1.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+            canvas.drawLine(x1,y1,x1+10,y1,paint);
+            canvas.drawText(String.valueOf(f2), centerX - 14, y1, paint);
         }
 
+        // 绘制 y 轴上的数字
+//        for (float i = yMin; i <= yMax; i++) {
+//            if (i == YCenter) {
+//                continue;
+//            }
+//            float y = centerY - (i - YCenter) * axisLength / yRange;
+//            float x = centerX;
+//            canvas.drawText(String.valueOf(i), centerX - 10, y, paint);
+//        }
+//
         // 绘制坐标点
+
+        float XCenter = (xMin + xMax) /2;
+        float YCenter = (yMin + yMax) /2;
+        float xRange = (xMax - xMin)/2;
+        float yRange = (yMax - yMin)/2;
+
         if (coordinates != null) {
             for (Point point : coordinates) {
                 float x = centerX + (point.x - XCenter) * axisLength / xRange;
                 float y = centerY - (point.y - YCenter) * axisLength / yRange;
                 paint.setStyle(Paint.Style.FILL);  // 设置画笔样式为实心
-                canvas.drawCircle(x, y, 5, paint);
+                canvas.drawCircle(x, y, 3, paint);
                 // 显示坐标值
-                canvas.drawText("(" + point.x + "," + point.y + ")", x, y - 20, paint);
+//                canvas.drawText("(" + point.x + "," + point.y + ")", x, y - 20, paint);
             }
         }
     }
