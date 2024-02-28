@@ -28,6 +28,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -56,10 +57,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private EditText ntripServerEditText, ntripPortEditText, ntripMountEditText, ntripUserEditText, ntripPasswordEditText;
+    private EditText tcpServerEditText, tcpPortEditText;
     private TextView scrolstautsTextView,scrolGGATextView;
     private static final String SSR_PREFERENCES_NAME = "ssrNtripSettingsPrefs";
     private static final String EPH_PREFERENCES_NAME = "ephNtripSettingsPrefs";
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
+    private static final String EPH_TCP_PREFERENCES_NAME = "ephTcpSettingsPrefs";
     NtripConnectTask taskSSR,taskOBS,taskEPH;
     GGATCPServer taskGGASer;
     private boolean hadSdkInit = false;
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout llMsgHeader;
     private LinearLayout lineChartLayout;
     private RadioButton logShowRadioButton, chartShowRadioButton;
+    private RadioButton radioEphTcp,radioEphNtrip;
     private CheckBox ssrCheckBox, ggaCheckBox;
 
     HandlerThread handlerThread;
@@ -89,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
     private double defaultXLeft, defaultXRight, defaultYTop, defaultYBottom;
     private Boolean showGGA = true, showSSR = false;
     List<GraphView.Point> coordinateList = new ArrayList<>();
+    private RadioGroup ephRadioGroup;
+    private Button btnEPHSettings;
+    private Button btnAngleSettings;
+    private EditText editTextHeightAngel;
+    private double textHeightAngle = 12;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 向 Handler 发送消息
 //        handler.sendMessage(handler.obtainMessage(MSG_ID, "Hello from HandlerThread"));
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch solveSwitch = findViewById(R.id.solve_switch);
+        Switch solveSwitch = findViewById(R.id.solve_switch);
 
         statusScrollView = findViewById(R.id.scrollview_status);
         scrolstautsTextView = findViewById(R.id.scrollable_textview);
@@ -165,7 +174,10 @@ public class MainActivity extends AppCompatActivity {
         editTextYBottom = findViewById(R.id.editTextYBottom);
         graphView = findViewById(R.id.graphImageView);
         btnChartXY = findViewById(R.id.confirm_button);
+        ephRadioGroup = findViewById(R.id.eph_radio_button);
 
+        btnAngleSettings = findViewById(R.id.btnAngleSettings);
+        editTextHeightAngel = findViewById(R.id.editTextHeightAngel);
 
         btnChartXY.setOnClickListener(v -> {
             String xLeftStr = editTextXLeft.getText().toString();
@@ -211,8 +223,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        radioEphTcp = findViewById(R.id.radio_eph_tcp);
+        radioEphNtrip = findViewById(R.id.radio_eph_ntrip);
+        radioEphNtrip.setChecked(true);
         findViewById(R.id.btnSSRSettings).setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
-        findViewById(R.id.btnEPHSettings).setOnClickListener(v -> showNtripSettingsDialog(EPH_PREFERENCES_NAME));
+        btnEPHSettings = findViewById(R.id.btnEPHSettings);
+        btnEPHSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int checkedRadioButtonId = ephRadioGroup.getCheckedRadioButtonId();
+
+                // 根据选中的RadioButton执行不同的逻辑处理
+                if (checkedRadioButtonId == radioEphTcp.getId()) {
+                    showTcpSettingsDialog();
+                } else if (checkedRadioButtonId == radioEphNtrip.getId()) {
+                    // 执行与NTRIP相关的逻辑
+                    showNtripSettingsDialog(EPH_PREFERENCES_NAME);
+                } else {
+                    // 未选中RadioButton时的逻辑
+                    showTcpSettingsDialog();
+                }
+            }
+        });
         findViewById(R.id.btnOBSSettings).setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
 
         chartShowRadioButton.setOnClickListener(view -> logShowOpenLayout());
@@ -242,6 +274,19 @@ public class MainActivity extends AppCompatActivity {
                     showSSR = false;
                 }
 
+            }
+        });
+        btnAngleSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    // 将字符串转换为double
+                    textHeightAngle = Double.parseDouble(editTextHeightAngel.getText().toString());
+                    // 现在，heightAngelValue 变量包含了转换后的 double 值，可以用于需要的逻辑
+                } catch (NumberFormatException e) {
+                    // 如果转换失败，处理异常，例如提示用户输入有效的数字
+                    e.printStackTrace(); // 或者其他处理方式
+                }
             }
         });
 
@@ -300,6 +345,39 @@ public class MainActivity extends AppCompatActivity {
                 });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void showTcpSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.settcp, null);
+        tcpServerEditText = dialogView.findViewById(R.id.tcp_server);
+        tcpPortEditText = dialogView.findViewById(R.id.tcp_port);
+        loadTcpSavedInfo();
+
+        builder.setView(dialogView)
+                .setPositiveButton("OK", (dialog, which) -> saveTcpSavedInfo())
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void loadTcpSavedInfo() {
+        Log.i(TAG, "load tcp");
+        SharedPreferences preferences = getSharedPreferences(EPH_TCP_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        tcpServerEditText.setText((preferences.getString("TCPIp", "")));
+        tcpPortEditText.setText((preferences.getString("TCPPort", "")));
+    }
+
+    private void saveTcpSavedInfo() {
+        Log.i(TAG, "save tcp");
+        SharedPreferences preferences = getSharedPreferences(EPH_TCP_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("TCPIp", tcpServerEditText.getText().toString());
+        editor.putString("TCPPort", tcpPortEditText.getText().toString());
+        editor.apply();
     }
 
     private void loadSavedInfo(String ntripPreferencesName) {
@@ -400,7 +478,7 @@ public class MainActivity extends AppCompatActivity {
             double[] enu  = new double[3];
             String path = Objects.requireNonNull(getExternalFilesDir(null)).getPath();
             Log.i(TAG, "SDKInit begin");
-            SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
+            SDK.SDKInit(mode,"", pos, enu, textHeightAngle, 1,path);
             hadSdkInit = true;
         }else {
             SDK.SDKRestart();
