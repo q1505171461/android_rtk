@@ -2,6 +2,7 @@ package com.example.fortest;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import java.io.BufferedReader;
@@ -9,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import android.util.Base64;
+
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -283,30 +286,35 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
     }
 }
 class GGATCPServer extends AsyncTask<Void, Void, Void> {
+//    GGATCPServer( ){
+//
+//    }
     @Override
     protected Void doInBackground(Void... voids) {
         try {
             ServerSocket serverSocket = new ServerSocket(12345); // 监听端口12345
-
             while (true) {
                 Socket clientSocket = serverSocket.accept(); // 等待客户端连接
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+//                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                OutputStream out =  clientSocket.getOutputStream();
+                Config.INSTANCE.setOutputStream(out);
 
-                // 读取客户端发送的数据
-                String clientData = in.readLine();
-                System.out.println("Received data from client: " + clientData);
+//                // 读取客户端发送的数据
+//                String clientData = in.readLine();
+//                System.out.println("Received data from client: " + clientData);
 
                 // 向客户端发送数据
-                out.println("Hello Client");
-
+                while (Config.INSTANCE.getOutputStream() != null){
+                    Thread.sleep(1000);
+                }
                 // 关闭连接
-                clientSocket.close();
+//                clientSocket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-
         return null;
     }
 }

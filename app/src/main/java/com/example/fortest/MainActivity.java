@@ -14,6 +14,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,6 +42,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String SSR_PREFERENCES_NAME = "ssrNtripSettingsPrefs";
     private static final String EPH_PREFERENCES_NAME = "ephNtripSettingsPrefs";
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
-    NtripConnectTask taskSSR,taskOBS,taskEPH,taskGGASer;
-
+    NtripConnectTask taskSSR,taskOBS,taskEPH;
+    GGATCPServer taskGGASer;
     private boolean hadSdkInit = false;
     private ScrollView statusScrollView, GGAScrollView;
 
@@ -76,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton logShowRadioButton, chartShowRadioButton;
     private CheckBox ssrCheckBox, ggaCheckBox;
 
+    HandlerThread handlerThread;
+    Handler ggahandler;
+
     // 坐标系
     private EditText editTextXLeft, editTextXRight, editTextYTop, editTextYBottom;
     private GraphView graphView;
@@ -87,7 +93,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        taskGGASer = new GGATCPServer();
+        taskGGASer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        handlerThread = new HandlerThread("MyHandlerThread");
+        handlerThread.start();
 
+        // 获取 Handler 对象
+        ggahandler = new Handler(handlerThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                // 在 HandlerThread 上执行的代码
+                if (msg.what == Config.MSG_GGA) {
+                    String message = (String) msg.obj;
+                    System.out.println("Received message: " + message);
+                    if (Config.INSTANCE.getOutputStream()!= null){
+                        try {
+                            Config.INSTANCE.getOutputStream().write(msg.obj.toString().getBytes());
+                        } catch (IOException e) {
+                            Config.INSTANCE.setOutputStream(null);
+                        }
+                    }
+                }
+            }
+        };
+        Config.INSTANCE.setGGAhandler(ggahandler);
+
+        // 向 Handler 发送消息
+//        handler.sendMessage(handler.obtainMessage(MSG_ID, "Hello from HandlerThread"));
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch solveSwitch = findViewById(R.id.solve_switch);
 
         statusScrollView = findViewById(R.id.scrollview_status);
@@ -312,6 +344,10 @@ public class MainActivity extends AppCompatActivity {
                 if (showGGA){
                     show_GGA_or_SSR_msg(msg.obj.toString());
                 }
+                Message msggga = new Message();
+                msggga.what = Config.MSG_GGA;
+                msggga.obj = msg.obj.toString();
+                Objects.requireNonNull(Config.INSTANCE.getGGAhandler()).sendMessage(msggga);
                 GGAData.INSTANCE.addGga(msg.obj.toString());
                 double[] enu = GGAData.INSTANCE.getLastEnu();
                 updateChartData((float) enu[0], (float) enu[1], (float) enu[2]);
@@ -336,15 +372,15 @@ public class MainActivity extends AppCompatActivity {
         Map<String, String> EPHhashMap = new HashMap<>();
         Map<String, String> OBShashMap = new HashMap<>();
         for (String argname : Config.INSTANCE.getConnectConfig()) {
-            if ("badarg".equals(SSRsharedPreferences.getString(argname, "badarg"))
-                    || "badarg".equals(EPHsharedPreferences.getString(argname, "badarg"))
-                    || "badarg".equals(OBSsharedPreferences.getString(argname, "badarg"))){
+            if ("".equals(SSRsharedPreferences.getString(argname, ""))
+                    || "".equals(EPHsharedPreferences.getString(argname, ""))
+                    || "".equals(OBSsharedPreferences.getString(argname, ""))){
                 show_Status_msg("Ntrip config error");
                 return;
             }else{
-                SSRhashMap.put(argname, SSRsharedPreferences.getString(argname,"badarg"));
-                EPHhashMap.put(argname, EPHsharedPreferences.getString(argname,"badarg"));
-                OBShashMap.put(argname, OBSsharedPreferences.getString(argname,"badarg"));
+                SSRhashMap.put(argname, SSRsharedPreferences.getString(argname,""));
+                EPHhashMap.put(argname, EPHsharedPreferences.getString(argname,""));
+                OBShashMap.put(argname, OBSsharedPreferences.getString(argname,""));
             }
         }
         if (!hadSdkInit){
@@ -365,13 +401,14 @@ public class MainActivity extends AppCompatActivity {
         taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);
         taskOBS = new NtripConnectTaskObs(OBShashMap, mHandler);
-//        taskGGASer = new GGATCPServer();
+
         Log.i(TAG, "Eph接收数据开始执行");
         taskEPH.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Ssr接收数据开始执行");
         taskSSR.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Obs接收数据开始执行");
         taskOBS.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
     }
     public void end() {
         Log.i(TAG, "Eph接收数据结束执行");

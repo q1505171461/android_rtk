@@ -1,16 +1,22 @@
 package com.example.fortest
 
+import android.os.Environment
 import android.util.Log
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Date
 
 object GGAData {
+
     val data : ArrayList<DoubleArray> = ArrayList()
     var referencePos : DoubleArray = doubleArrayOf(0.0,0.0,0.0,0.0)
     fun  addGga(gga: String){
         val tblh = gga2tblh(gga)
         val xyz = Utils.blhxyz(tblh[2],tblh[1],tblh[3],0.0,0.0)
+        xyz2file("xyz.txt", "${xyz[0]}, ${xyz[1]}, ${xyz[2]}\n")
         System.out.printf("vvvvvvvvv1%.5f %.5f %.5f ",xyz[0],xyz[1],xyz[2])
         data.add(doubleArrayOf(tblh[0],xyz[0],xyz[1],xyz[2]))
         if (0.toLong() == referencePos[0].toLong()){
@@ -74,6 +80,24 @@ object GGAData {
         } catch (e: Exception) {
             e.printStackTrace()
             return 0
+        }
+    }
+
+    fun xyz2file(fileName:String, data : String){
+        try {
+            val file = File(Environment.getExternalStorageDirectory(), fileName)
+            val fileOutputStream = FileOutputStream(file, true)
+            val outputStreamWriter = OutputStreamWriter(fileOutputStream)
+
+            outputStreamWriter.write(data)
+
+            outputStreamWriter.close()
+            fileOutputStream.close()
+
+            // 文件写入成功
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // 文件写入失败，处理异常
         }
     }
 }
