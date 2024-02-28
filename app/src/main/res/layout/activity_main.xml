@@ -61,22 +61,24 @@
             android:paddingRight="10dp"
             android:paddingLeft="10dp"
             android:layout_width="0dp"
-            android:layout_weight="0.25"
+            android:layout_weight="3"
             android:layout_height="match_parent">
+
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="2"
                 android:layout_height="match_parent"
+                android:layout_weight="1.0"
                 android:gravity="center_vertical"
-                android:textSize="20sp"
-                android:textStyle="bold"
                 android:text="@string/ssr"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 tools:ignore="NestedWeights" />
+
             <Button
                 android:id="@+id/btnSSRSettings"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2"
+                android:layout_weight="1.5"
                 android:textSize="10dp"
                 android:text="@string/settings" />
         </LinearLayout>
@@ -85,16 +87,48 @@
             android:paddingRight="10dp"
             android:paddingLeft="10dp"
             android:layout_width="0dp"
-            android:layout_weight="0.25"
+            android:layout_weight="5"
             android:layout_height="match_parent">
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="2"
+                android:layout_weight="1.1"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:text="@string/eph" />
+            <LinearLayout
+                android:background="@color/grey_color"
+                android:layout_width="0dp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="3"
+                android:layout_height="40dp">
+                <RadioGroup
+                    android:id="@+id/eph_radio_button"
+                    android:layout_width="0dp"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:id="@+id/radio_eph_tcp"
+                        android:textColor="#111"
+                        android:textSize="8sp"
+                        android:text="T"
+                        android:layout_height="wrap_content"/>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="8sp"
+                        android:id="@+id/radio_eph_ntrip"
+                        android:textColor="#111"
+                        android:text="N"
+                        android:layout_height="wrap_content"/>
+                </RadioGroup>
+            </LinearLayout>
             <Button
                 android:id="@+id/btnEPHSettings"
                 android:layout_width="0dp"
@@ -121,7 +155,7 @@
             android:layout_weight="2"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:text="@string/obs" />
         <LinearLayout
@@ -189,14 +223,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="采样率设置："
+            android:textSize="12dp"
+            android:text="采样率："
             android:layout_gravity="center_vertical"/>
 
         <EditText
             android:id="@+id/editTextSamplingRate"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:hint="1"
             android:inputType="numberDecimal"
             android:autofillHints="1" />
@@ -205,16 +239,51 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingEnd="5dp"
+            android:textSize="12dp"
             android:text="秒"
             android:layout_gravity="center_vertical"/>
+
         <Button
             android:id="@+id/btnIntvSettings"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:text="@string/settings"
+
+            android:textColor="@android:color/white"
+            android:textSize="10dp" />
+
+        <View
+            android:layout_marginLeft="5dp"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#000000" />
+
+        <TextView
+            android:layout_marginLeft="5dp"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:text="截至高度角："
+            android:layout_gravity="center_vertical"/>
+
+        <EditText
+            android:id="@+id/editTextHeightAngel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="12"
+            android:autofillHints="1"
+            android:inputType="numberDecimal" />
+
+        <Button
+            android:id="@+id/btnAngleSettings"
+            android:layout_width="70dp"
             android:layout_height="match_parent"
             android:textSize="10dp"
 
             android:text="@string/settings"
             android:textColor="@android:color/white" />
+
+
     </LinearLayout>
 
     <View style="@style/divider_normal" />
