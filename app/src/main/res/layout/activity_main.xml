@@ -63,22 +63,22 @@
             android:layout_width="0dp"
             android:layout_weight="0.25"
             android:layout_height="match_parent">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="@string/ssr"
-            tools:ignore="NestedWeights" />
-        <Button
-            android:id="@+id/btnSSRSettings"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:textSize="10dp"
-            android:text="@string/settings" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/ssr"
+                tools:ignore="NestedWeights" />
+            <Button
+                android:id="@+id/btnSSRSettings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:textSize="10dp"
+                android:text="@string/settings" />
         </LinearLayout>
 
         <LinearLayout
@@ -95,13 +95,13 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:text="@string/eph" />
-        <Button
-            android:id="@+id/btnEPHSettings"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="match_parent"
-            android:textSize="10dp"
-            android:text="@string/settings" />
+            <Button
+                android:id="@+id/btnEPHSettings"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:textSize="10dp"
+                android:text="@string/settings" />
         </LinearLayout>
 
     </LinearLayout>
@@ -124,47 +124,47 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:text="@string/obs" />
-            <LinearLayout
-                android:background="@color/grey_color"
+        <LinearLayout
+            android:background="@color/grey_color"
+            android:layout_width="0dp"
+            android:paddingLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="10"
+            android:layout_height="40dp">
+            <RadioGroup
                 android:layout_width="0dp"
-                android:paddingLeft="10dp"
+                android:orientation="horizontal"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="10"
-                android:layout_height="40dp">
-                <RadioGroup
-                    android:layout_width="0dp"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:id="@+id/radiogroup_comm"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:layout_width="wrap_content"
                     android:layout_weight="1"
-                    android:id="@+id/radiogroup_comm"
-                    android:layout_height="wrap_content">
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:id="@+id/radio_serial"
-                        android:textColor="#111"
-                        android:textSize="8sp"
-                        android:text="@string/str_com_mode_title"
-                        android:layout_height="wrap_content"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8sp"
-                        android:id="@+id/radio_bt"
-                        android:textColor="#111"
-                        android:text="@string/str_bt_mode_title"
-                        android:layout_height="wrap_content"/>
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:id="@+id/radio_ntrip"
-                        android:textColor="#111"
-                        android:textSize="8sp"
-                        android:text="@string/str_ntrip_mode_title"
-                        android:layout_height="wrap_content"/>
-                </RadioGroup>
-            </LinearLayout>
+                    android:id="@+id/radio_serial"
+                    android:textColor="#111"
+                    android:textSize="8sp"
+                    android:text="@string/str_com_mode_title"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="8sp"
+                    android:id="@+id/radio_bt"
+                    android:textColor="#111"
+                    android:text="@string/str_bt_mode_title"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:id="@+id/radio_ntrip"
+                    android:textColor="#111"
+                    android:textSize="8sp"
+                    android:text="@string/str_ntrip_mode_title"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
+        </LinearLayout>
         <Button
             android:id="@+id/btnOBSSettings"
             android:layout_width="0dp"
@@ -175,7 +175,7 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    
+
 
     <View style="@style/divider_normal" android:id="@+id/divider_4" />
 
@@ -307,12 +307,12 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="X左:" />
+                        android:text="左:" />
 
                     <EditText
                         android:id="@+id/editTextXLeft"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:textSize="15dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -327,12 +327,12 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="X右:" />
+                        android:text="右:" />
 
                     <EditText
                         android:id="@+id/editTextXRight"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:textSize="15dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -347,12 +347,12 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Y上:" />
+                        android:text="上:" />
 
                     <EditText
                         android:id="@+id/editTextYTop"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:textSize="15dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -367,12 +367,12 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="Y下:" />
+                        android:text="下:" />
 
                     <EditText
                         android:id="@+id/editTextYBottom"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:textSize="15dp"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
