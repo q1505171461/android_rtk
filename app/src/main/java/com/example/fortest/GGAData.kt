@@ -43,7 +43,7 @@ object GGAData {
         val time = parts[1]
         val latitude = parts[2]
         val longitude = parts[4]
-        val altitude = parts[9]
+        val altitude = parts[11]
 
         // 转换纬度和经度为十进制度
         val decimalLatitude = convertToDecimalDegrees(latitude.toDouble())
