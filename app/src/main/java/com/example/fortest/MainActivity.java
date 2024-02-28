@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch solveSwitch = findViewById(R.id.solve_switch);
+        Switch solveSwitch = findViewById(R.id.solve_switch);
 
         statusScrollView = findViewById(R.id.scrollview_status);
         scrolstautsTextView = findViewById(R.id.scrollable_textview);
@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         ssrCheckBox = findViewById(R.id.checkbox_ssr);
         ggaCheckBox = findViewById(R.id.checkbox_gga);
         ggaCheckBox.setChecked(true);
+        show_Status_msg("Hello");
         findViewById(R.id.btnIntvSettings).setOnClickListener(view -> {
             Config.INSTANCE.setIntv(((EditText) findViewById(R.id.editTextSamplingRate)).getText().toString());
             if (Config.INSTANCE.getIntv().equals("")){
@@ -162,9 +163,19 @@ public class MainActivity extends AppCompatActivity {
         defaultSetting();
         solveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
-                show_Status_msg(logWithTime("connecting to the channel ..."));
-                start();
-            }else {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    show_Status_msg("无存储权限，请设置！");
+                } else {
+                    show_Status_msg(logWithTime("connecting to the channel ..."));
+                    start();
+                }
+            } else {
+                entries1.clear();
+                entries2.clear();
+                entries3.clear();
+                coordinateList.clear();
+                lineChart.invalidate();
                 end();
             }
         });
@@ -234,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 copyAssets();
             } else {
+                show_Status_msg("Write external storage permission denied");
                 Log.e(TAG, "Write external storage permission denied");
             }
         }
@@ -374,12 +386,18 @@ public class MainActivity extends AppCompatActivity {
         taskOBS.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     public void end() {
-        Log.i(TAG, "Eph接收数据结束执行");
-        taskEPH.exit();
-        Log.i(TAG, "Ssr接收数据结束执行");
-        taskSSR.exit();
-        Log.i(TAG, "Obs接收数据结束执行");
-        taskOBS.exit();
+        if (taskEPH != null) {
+            Log.i(TAG, "Eph接收数据结束执行");
+            taskEPH.exit();
+        }
+        if (taskSSR != null) {
+            Log.i(TAG, "Ssr接收数据结束执行");
+            taskSSR.exit();
+        }
+        if (taskOBS != null) {
+            Log.i(TAG, "Obs接收数据结束执行");
+            taskOBS.exit();
+        }
     }
     void defaultSetting(){
         SharedPreferences SSRsharedPreferences = getSharedPreferences(SSR_PREFERENCES_NAME, MODE_PRIVATE);
@@ -444,6 +462,7 @@ public class MainActivity extends AppCompatActivity {
         lineChart.getXAxis().setGranularity(1f);
         lineChart.getXAxis().setValueFormatter(new ValueFormatter() {
             private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
                 long timestamp = startTime + (long) value * 1000;
@@ -453,7 +472,15 @@ public class MainActivity extends AppCompatActivity {
 
         lineChart.getAxisRight().setEnabled(false);
         YAxis leftAxis = lineChart.getAxisLeft();
-//        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMinimum(-0.2f); // 设置纵坐标最小值
+        leftAxis.setAxisMaximum(0.2f); // 设置纵坐标最大值
+
+        leftAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                return String.format(Locale.getDefault(), "%.2fm", value);
+            }
+        });
     }
 
     private void updateChartData(float value1, float value2, float value3) {
@@ -480,7 +507,29 @@ public class MainActivity extends AppCompatActivity {
         // 创建 LineData 对象并添加数据集
         LineData lineData = new LineData(dataSet1, dataSet2, dataSet3);
         lineChart.setData(lineData);
+        checkAndUpdateAxisRange(value1, value2, value3);
         lineChart.invalidate(); // 刷新图表
+    }
+
+    private void checkAndUpdateAxisRange(float value1, float value2, float value3) {
+        YAxis leftAxis = lineChart.getAxisLeft();
+
+        // 获取当前纵坐标轴的范围
+        float currentMin = leftAxis.getAxisMinimum();
+        float currentMax = leftAxis.getAxisMaximum();
+        Log.i(TAG, "checkAndUpdateAxisRange currentMin = " + currentMin + " currentMax = " + currentMax);
+
+        // 检查新数据点是否超出默认范围，如果有则更新纵坐标轴范围
+        if (value1 < currentMin || value2 < currentMin || value3 < currentMin) {
+            // 有值超出默认范围，更新纵坐标轴范围
+            Log.i(TAG, "checkAndUpdateAxisRange 更新纵坐标轴最大值范围");
+            leftAxis.setAxisMinimum(Math.min(Math.min(value1, value2), value3) - 0.05f);
+        }
+        if (value1 > currentMax || value2 > currentMax || value3 > currentMax) {
+            Log.i(TAG, "checkAndUpdateAxisRange 更新纵坐标轴最小值范围");
+            leftAxis.setAxisMaximum(Math.max(Math.max(value1, value2), value3) + 0.05f);
+        }
+        // 如果没有值超出默认范围，保持当前纵坐标轴范围
     }
 
     private void testupdateChart() {
