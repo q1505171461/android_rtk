@@ -437,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
                 msggga.what = Config.MSG_GGA;
                 msggga.obj = msg.obj.toString();
                 Objects.requireNonNull(Config.INSTANCE.getGGAhandler()).sendMessage(msggga);
+
                 GGAData.INSTANCE.addGga(msg.obj.toString());
                 double[] enu = GGAData.INSTANCE.getLastEnu();
                 updateChartData((float) enu[0], (float) enu[1], (float) enu[2]);
@@ -486,6 +487,7 @@ public class MainActivity extends AppCompatActivity {
 //        SDK.SDKInit(mode,"", pos, enu, 7, 1,path);
         int intv = Integer.parseInt(Config.INSTANCE.getIntv());
         SDK.SDKSetIntv(intv);
+        SDK.SDKSetCutoff(textHeightAngle);
         Log.i(TAG, "SDKInit over");
         taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);

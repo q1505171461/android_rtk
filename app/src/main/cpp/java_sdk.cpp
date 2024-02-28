@@ -69,6 +69,17 @@ Java_com_example_fortest_SDK_SDKSetIntv(JNIEnv *env, jclass clazz, jint intv) {
 //    SDK_ecef2enu(ref_pos,point_pos,enu);
 //    LOGD("1111 %f %f %f",enu[0],enu[1],enu[2]);
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_fortest_SDK_SDKSetCutoff(JNIEnv *env, jclass clazz, jdouble cutoff) {
+    SDK_setCutoff(cutoff);
+//    double ref_pos[3] = {1227856.3104, -4698500.7901, 4079976.9345};
+//    double point_pos[3] = {1227856.3204, -4698499.7901, 4079977.9345};
+//    double enu[3];
+//    SDK_ecef2enu(ref_pos,point_pos,enu);
+//    LOGD("1111 %f %f %f",enu[0],enu[1],enu[2]);
+}
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_example_fortest_SDK_SDKRetrieve(JNIEnv *env, jclass clazz, jstring jtype, jint len) {

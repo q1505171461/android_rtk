@@ -30,6 +30,9 @@ extern void KPL_inputEph(KPL_IO::nav_t *nav, int psat, int offset);
 /* input Ssr bias */
 extern void KPL_inputSsrBias(KPL_IO::ssr_t *ssr);
 
+/* set cutoff for observations */
+extern void KPL_setCutoff(double cutoff);
+
 /* input set the process interval, minimum is 1.0 s */
 extern void KPL_setIntv(double intv);
 

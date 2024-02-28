@@ -38,6 +38,11 @@ namespace KPL_IO
             KPL_finilize();
         }
     }
+
+    extern void SDK_setCutoff(double cutoff){
+        KPL_setCutoff(cutoff);
+    }
+
     extern void SDK_restart()
     {
         KPL_restart();

@@ -12,6 +12,7 @@ public class SDK {
     public static native int IOInputSsrData(byte data);
     public static native void SDKTerminate();
     public static native void SDKRestart();
+    public static native void SDKSetCutoff(double cutoff);
     public static native void SDKSetpath(String path);
     public static native void sendEphData(byte[] receiveByte);
     public static native void sendSsrData(byte[] bytes);
