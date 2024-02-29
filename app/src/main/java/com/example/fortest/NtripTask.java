@@ -226,10 +226,12 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
     protected String TAG = "TCPConnect";
     private String SERVER_IP = "119.96.169.117";
     private int SERVER_PORT = 7001;
+    private Handler handler;
     private boolean enableRunning = false; // 用于控制循环的标志
     private  Map<String, String> config;
-    TcpClientTask(Map<String, String> config){
+    TcpClientTask(Map<String, String> config, Handler handler){
        this.config = config;
+       this.handler = handler;
     }
     @Override
     protected Void doInBackground(Void... voids) {
@@ -245,7 +247,7 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
             InputStream inputStream = socket.getInputStream();
             // 向服务器发送请求
             out.println("Hello Server");
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[10240];
             // 循环读取服务器发送的数据
             while (enableRunning) {
                 Log.i(TAG, "tcp Eph is running");
@@ -253,6 +255,7 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
                 if (byteRead == -1) {
                     break;
                 }
+                sendStatusMsg();
                 // 处理从服务器获取的数据，例如更新UI或执行其他操作
                 byte[] receivedBytes = new byte[byteRead];
                 System.arraycopy(buffer, 0, receivedBytes, 0, byteRead);
@@ -279,10 +282,18 @@ class TcpClientTask extends AsyncTask<Void, Void, Void> {
             return false;
         }
         String[] configStr  =  Config.INSTANCE.getConnectConfig();
-        this.SERVER_IP = config.get(configStr[0]);
-        this.SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get(configStr[1])));
+        this.SERVER_IP = config.get("TCPIp");
+        this.SERVER_PORT = Integer.parseInt(Objects.requireNonNull(config.get("TCPPort")));
         enableRunning = true;
         return true;
+    }
+    public void exit(){
+        enableRunning = false;
+    }
+    void sendStatusMsg(){
+        Message msg = new Message();
+        msg.what = Config.EPH_LOGIN_SUCCESS;
+        handler.sendMessage(msg);
     }
 }
 class GGATCPServer extends AsyncTask<Void, Void, Void> {

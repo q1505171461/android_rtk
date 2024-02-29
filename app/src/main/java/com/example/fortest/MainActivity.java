@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String OBS_PREFERENCES_NAME = "obsNtripSettingsPrefs";
     private static final String EPH_TCP_PREFERENCES_NAME = "ephTcpSettingsPrefs";
     NtripConnectTask taskSSR,taskOBS,taskEPH;
+    TcpClientTask taskTCPEPH;
     GGATCPServer taskGGASer;
     private boolean hadSdkInit = false;
     private ScrollView statusScrollView, GGAScrollView;
@@ -228,21 +229,17 @@ public class MainActivity extends AppCompatActivity {
         radioEphNtrip.setChecked(true);
         findViewById(R.id.btnSSRSettings).setOnClickListener(v -> showNtripSettingsDialog(SSR_PREFERENCES_NAME));
         btnEPHSettings = findViewById(R.id.btnEPHSettings);
-        btnEPHSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int checkedRadioButtonId = ephRadioGroup.getCheckedRadioButtonId();
-
-                // 根据选中的RadioButton执行不同的逻辑处理
-                if (checkedRadioButtonId == radioEphTcp.getId()) {
-                    showTcpSettingsDialog();
-                } else if (checkedRadioButtonId == radioEphNtrip.getId()) {
-                    // 执行与NTRIP相关的逻辑
-                    showNtripSettingsDialog(EPH_PREFERENCES_NAME);
-                } else {
-                    // 未选中RadioButton时的逻辑
-                    showTcpSettingsDialog();
-                }
+        btnEPHSettings.setOnClickListener(v -> {
+            int checkedRadioButtonId = ephRadioGroup.getCheckedRadioButtonId();
+            // 根据选中的RadioButton执行不同的逻辑处理
+            if (checkedRadioButtonId == radioEphTcp.getId()) {
+                showTcpSettingsDialog();
+            } else if (checkedRadioButtonId == radioEphNtrip.getId()) {
+                // 执行与NTRIP相关的逻辑
+                showNtripSettingsDialog(EPH_PREFERENCES_NAME);
+            } else {
+                // 未选中RadioButton时的逻辑
+                showTcpSettingsDialog();
             }
         });
         findViewById(R.id.btnOBSSettings).setOnClickListener(v -> showNtripSettingsDialog(OBS_PREFERENCES_NAME));
@@ -254,39 +251,30 @@ public class MainActivity extends AppCompatActivity {
         setupChart();
         startTime = System.currentTimeMillis();
 
-        ggaCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    showGGA = true;
-                } else {
-                    showGGA = false;
-                }
+        ggaCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                showGGA = true;
+            } else {
+                showGGA = false;
             }
         });
 
-        ssrCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    showSSR = true;
-                } else {
-                    showSSR = false;
-                }
-
+        ssrCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                showSSR = true;
+            } else {
+                showSSR = false;
             }
+
         });
-        btnAngleSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    // 将字符串转换为double
-                    textHeightAngle = Double.parseDouble(editTextHeightAngel.getText().toString());
-                    // 现在，heightAngelValue 变量包含了转换后的 double 值，可以用于需要的逻辑
-                } catch (NumberFormatException e) {
-                    // 如果转换失败，处理异常，例如提示用户输入有效的数字
-                    e.printStackTrace(); // 或者其他处理方式
-                }
+        btnAngleSettings.setOnClickListener(v -> {
+            try {
+                // 将字符串转换为double
+                textHeightAngle = Double.parseDouble(editTextHeightAngel.getText().toString());
+                // 现在，heightAngelValue 变量包含了转换后的 double 值，可以用于需要的逻辑
+            } catch (NumberFormatException e) {
+                // 如果转换失败，处理异常，例如提示用户输入有效的数字
+                e.printStackTrace(); // 或者其他处理方式
             }
         });
 
@@ -458,18 +446,38 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences SSRsharedPreferences = getSharedPreferences(SSR_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences EPHsharedPreferences = getSharedPreferences(EPH_PREFERENCES_NAME, MODE_PRIVATE);
         SharedPreferences OBSsharedPreferences = getSharedPreferences(OBS_PREFERENCES_NAME, MODE_PRIVATE);
+        SharedPreferences TCPEPHsharedPreferences = getSharedPreferences(EPH_TCP_PREFERENCES_NAME, MODE_PRIVATE);
         Map<String, String> SSRhashMap = new HashMap<>();
         Map<String, String> EPHhashMap = new HashMap<>();
         Map<String, String> OBShashMap = new HashMap<>();
+        Map<String, String> TCPEPHhashMap = new HashMap<>();
+        int checkedRadioButtonId = ephRadioGroup.getCheckedRadioButtonId();
+        if (checkedRadioButtonId == radioEphTcp.getId()) {
+             if ("".equals(TCPEPHsharedPreferences.getString("TCPPort", ""))
+                     || "".equals(TCPEPHsharedPreferences.getString("TCPIp", ""))){
+                 show_Status_msg("TCP config error");
+                 return;
+             }else{
+                 TCPEPHhashMap.put("TCPIp", TCPEPHsharedPreferences.getString("TCPIp", ""));
+                 TCPEPHhashMap.put("TCPPort", TCPEPHsharedPreferences.getString("TCPPort", ""));
+             }
+        }else{
+            for (String argname : Config.INSTANCE.getConnectConfig()) {
+                if ("".equals(EPHsharedPreferences.getString(argname, ""))){
+                    show_Status_msg("Ntrip config error");
+                    return;
+                }else{
+                    EPHhashMap.put(argname, EPHsharedPreferences.getString(argname,""));
+                }
+            }
+        }
         for (String argname : Config.INSTANCE.getConnectConfig()) {
             if ("".equals(SSRsharedPreferences.getString(argname, ""))
-                    || "".equals(EPHsharedPreferences.getString(argname, ""))
                     || "".equals(OBSsharedPreferences.getString(argname, ""))){
                 show_Status_msg("Ntrip config error");
                 return;
             }else{
                 SSRhashMap.put(argname, SSRsharedPreferences.getString(argname,""));
-                EPHhashMap.put(argname, EPHsharedPreferences.getString(argname,""));
                 OBShashMap.put(argname, OBSsharedPreferences.getString(argname,""));
             }
         }
@@ -489,12 +497,17 @@ public class MainActivity extends AppCompatActivity {
         SDK.SDKSetIntv(intv);
         SDK.SDKSetCutoff(textHeightAngle);
         Log.i(TAG, "SDKInit over");
-        taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
         taskSSR = new NtripConnectTaskSsr(SSRhashMap, mHandler);
         taskOBS = new NtripConnectTaskObs(OBShashMap, mHandler);
-
-        Log.i(TAG, "Eph接收数据开始执行");
-        taskEPH.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        if (checkedRadioButtonId == radioEphTcp.getId()) {
+            taskTCPEPH = new TcpClientTask(TCPEPHhashMap, mHandler);
+            Log.i(TAG, "Eph接收数据开始执行");
+            taskTCPEPH.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }else{
+            taskEPH = new NtripConnectTaskEph(EPHhashMap, mHandler);
+            Log.i(TAG, "Eph接收数据开始执行");
+            taskEPH.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
         Log.i(TAG, "Ssr接收数据开始执行");
         taskSSR.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Log.i(TAG, "Obs接收数据开始执行");
@@ -514,6 +527,10 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "Obs接收数据结束执行");
             taskOBS.exit();
         }
+        if (taskTCPEPH != null) {
+            Log.i(TAG, "Obs接收数据结束执行");
+            taskTCPEPH.exit();
+        }
     }
     void defaultSetting(){
         SharedPreferences SSRsharedPreferences = getSharedPreferences(SSR_PREFERENCES_NAME, MODE_PRIVATE);
@@ -524,6 +541,12 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("User", "test052");
         editor.putString("Password","46391");
         editor.apply();
+        SharedPreferences TCPEPHsharedPreferences = getSharedPreferences(EPH_TCP_PREFERENCES_NAME, MODE_PRIVATE);
+        editor = TCPEPHsharedPreferences.edit();
+        editor.putString("TCPIp", "119.96.228.250");
+        editor.putString("TCPPort", "8061");
+        editor.apply();
+
         SharedPreferences EPHsharedPreferences = getSharedPreferences(EPH_PREFERENCES_NAME, MODE_PRIVATE);
         editor = EPHsharedPreferences.edit();
 //        editor.putString("IP", "119.96.169.117");
